@@ -20,7 +20,7 @@ db.bind(**app.config['PONY'])
 
 from emotes.app.models import *
 
-# db.generate_mapping(create_tables=True)
+db.generate_mapping(create_tables=True)
 
 Pony(app)
 
