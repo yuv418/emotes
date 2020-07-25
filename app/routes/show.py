@@ -17,5 +17,3 @@ def priority_emote(emote):
 	#?size=64x
 	#?size=64x48
 	#?size=original
-	#Resize image or specified with params blyat by 32/largestSide
-	# yeah
