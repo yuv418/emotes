@@ -1,5 +1,6 @@
-from wsgi import db
-from app.models.user import *
+from emotes.wsgi import db
+from emotes.app.models.user import *
+from pony.orm import *
 
 class Namespace(db.Entity):
     name = Required(str) 

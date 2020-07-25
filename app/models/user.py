@@ -1,4 +1,5 @@
-from wsgi import db
+from emotes.wsgi import db
+from pony.orm import *
 
 class User(db.Entity):
     name = Required(str)
@@ -7,3 +8,4 @@ class User(db.Entity):
 
 class ApiKey(db.Entity):
     value = Required(str, 128) # == SecureRandom.alphanumeric 128
+    user = Required(User)

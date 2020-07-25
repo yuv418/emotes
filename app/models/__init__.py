@@ -1,3 +1,3 @@
-from app.models.emote import *
-from app.models.namespace import *
-from app.models.user import *
+from emotes.app.models.emote import *
+from emotes.app.models.namespace import *
+from emotes.app.models.user import *

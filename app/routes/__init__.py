@@ -1,2 +1,2 @@
-from app.routes.api import *
-from app.routes.show import *
+from emotes.app.routes.api import *
+from emotes.app.routes.show import *

@@ -1,4 +1,4 @@
-from wsgi import app 
+from emotes.wsgi import app 
 from flask import request, jsonify
 
 api_prefix = "/api"
