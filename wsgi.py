@@ -12,7 +12,11 @@ app.config.update(dict(
 		'user': os.environ["EMOTES_DB_USER"],
 		'password': os.environ["EMOTES_DB_PASSWORD"],
 		'database': os.environ["EMOTES_DB_DATABASE"],
-	}
+	},
+	DISCORD_ID = os.environ["EMOTES_DISCORD_ID"],
+	DISCORD_SECRET = os.environ["EMOTES_DISCORD_SECRET"],
+	DISCORD_ENDPOINT = "https://discord.com/api/v6",
+	REDIRECT_URI = "https://emotes.ml"
 ))
 
 db = Database()
@@ -20,7 +24,7 @@ db.bind(**app.config['PONY'])
 
 from emotes.app.models import *
 
-db.generate_mapping(create_tables=True)
+# db.generate_mapping(create_tables=True)
 
 Pony(app)
 

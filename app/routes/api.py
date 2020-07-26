@@ -22,6 +22,5 @@ def api_user_apikey(id):
 
 @app.route(f"{api_prefix}/namespace", methods=["POST"])
 @db_session
-@api_key
 def api_new_namespace():
     pass
