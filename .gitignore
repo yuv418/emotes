@@ -140,3 +140,5 @@ cython_debug/
 # Flaskenv
 .flaskenv
 
+# Uploads
+uploads/*

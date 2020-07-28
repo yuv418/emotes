@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: emotes-ingress
+spec:
+  rules:
+  - host: emotes.your.host.here
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: emotes
+          servicePort: 80

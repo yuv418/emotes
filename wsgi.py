@@ -1,34 +1,33 @@
 from flask import Flask
-from pony.flask import Pony
-from pony.orm import Database
+from peewee import *
+import peeweedbevolve
+from playhouse.flask_utils import FlaskDB
 import os
 
 app = Flask(__name__)
+# TODO slack
 app.config.update(dict(
 	SECRET_KEY = os.environ["EMOTES_SECRET_KEY"],
-	PONY =  {
-		'provider':  'mysql',
-		'host': os.environ["EMOTES_DB_HOST"],
-		'user': os.environ["EMOTES_DB_USER"],
-		'password': os.environ["EMOTES_DB_PASSWORD"],
-		'database': os.environ["EMOTES_DB_DATABASE"],
-	},
-	DISCORD_ID = os.environ["EMOTES_DISCORD_ID"],
-	DISCORD_SECRET = os.environ["EMOTES_DISCORD_SECRET"],
-	DISCORD_ENDPOINT = "https://discord.com/api/v6",
-	REDIRECT_URI = "https://emotes.ml"
+	DATABASE = 'mysql://{}:{}@{}:3306/{}'.format(
+		os.environ["EMOTES_DB_USER"],
+		os.environ["EMOTES_DB_PASSWORD"],
+		os.environ["EMOTES_DB_HOST"],
+		os.environ["EMOTES_DB_DATABASE"],
+	),
+	UPLOADS_PATH = "uploads/",
 ))
 
-db = Database()
-db.bind(**app.config['PONY'])
-
-from emotes.app.models import *
-
-# db.generate_mapping(create_tables=True)
-
-Pony(app)
+db = FlaskDB(app)
 
 from emotes.app.routes import *
+from emotes.app.models import *
+
+db.database.create_tables([
+	User,
+	Namespace,
+	ApiKey,
+	Emote
+])
 
 if __name__ == '__main__':
 	app.run(host='127.0.0.1', port=8000, debug=True)

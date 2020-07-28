@@ -1,8 +1,10 @@
 Werkzeug
 flask
-pony
+peewee
 python-dotenv
 pymysql
 Pillow
 discord.py
 requests
+awesome-slugify
+flask-uploads

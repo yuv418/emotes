@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: emotes
+  labels:
+    app: emotes
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: emotes
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: emotes-pv-claim
+  labels:
+    app: emotes
+spec:
+  storageClassName: nfs-client # Maybe change this
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: emotes
+  labels:
+    app: emotes
+spec:
+  selector:
+    matchLabels:
+      app: emotes
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: emotes
+        tier: frontend
+    spec:
+      containers:
+      - image: localhost:32000/emotes # Local docker deploy, change this to suit your needs
+        name: emotes
+        env:
+          - name: EMOTES_DB_USER
+            value: <Fill this in> 
+          - name: EMOTES_DB_PASSWORD
+            value: <Fill this in> 
+          - name: EMOTES_DB_HOST
+            value: emotes-mysql
+          - name: EMOTES_DB_DATABASE
+            value: emotes
+          - name: EMOTES_SECRET_KEY
+            value: <Fill this in> 
+        ports:
+        - containerPort: 80
+          name: emotes
+        volumeMounts:
+        - name: emotes-persistent-storage
+          mountPath: /app/uploads
+      volumes:
+      - name: emotes-persistent-storage
+        persistentVolumeClaim:
+          claimName: emotes-pv-claim
