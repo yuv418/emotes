@@ -61,7 +61,7 @@ def api_delete_emote(user):
     emote.delete_instance()
     return jsonify({"msg": "Emote deleted."})
 
-@app.route(f"{api_prefix}/user", methods=["POST"])
+@app.route(f"{api_prefix}/users", methods=["POST"])
 @apikey_required
 @admin_required
 def api_new_user(user):

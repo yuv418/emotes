@@ -35,34 +35,43 @@ class EmoteWrapper():
         
         #return self.__pillow_to_bytesio(self.__resize_emote(img))
         if img:
-            return self.__resize_emote(img)
+            return img
         return None
 
     def __resize_emote(self, image, _type):
-        """"Resizes the emote so it appears similar to a 32x32 discord emoji"""
+        """"Resizes the emote so it appears similar to a 32x32 discord emoji. Returns a BytesIO"""
+        
         # Get the resize % for the image
         resize_width = self.width / image.width
         resize_height = self.height/ image.height
         resize_value = min(resize_width, resize_height)
+        def __emote():
+            image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.HAMMING)
+            i = BytesIO()
+            image_resized.save(i, format='PNG', quality=100)
+            i.seek(0)
+            return i
+
+        def __aemote():
+            metadata = image.info
+
+            # Extract the frames for resizing
+            frames_resize = []
+            for frame in ImageSequence.Iterator(image):
+                frames_resize.append(frame.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.BOX))
+            first = next(iter(frames_resize))
+            first.info = metadata
+            i = BytesIO()
+            first.save(i, format='GIF', quality=100, save_all=True, append_images=frames_resize)
+            i.seek(0)
+            return i
         switch = {
-            'aemote': lamba: 
-                metadata = image.info
-
-                if 'background' in metadata:
-                    if metadata['background']
-
-                # Extract the frames for resizing
-                frames_resize = []
-                for frame in ImageSequence.Iterator(image):
-                    frames_resize.append(frame.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.HAMMING))
-                first = next(iter(frames_resize))
-                first.info = metadata
-                print(f'\n\n{first.info}\n\n')
-                i = BytesIO()
-                first.save(i, format='GIF', quality=100, save_all=True, append_images=frames_resize)
-                i.seek(0)
-                return i
+            'emote': __emote,
+            'aemote': __aemote
         }
+        func = switch.get(_type, lambda: "Cannot find type")
+        return func()
+
     def __pillow_to_bytesio(self, pillow_img):
         """Return a BytesIO from a Pillow so we can render stuff in Flask easily"""
         i = BytesIO()
@@ -76,7 +85,7 @@ class EmoteWrapper():
         service = split[0]
         guild = split[1]
     
-        #what—about twitch
+        # Twitch
         pass
     def __fetch_local(self):
         """
@@ -88,13 +97,14 @@ class EmoteWrapper():
         all __fetch_\w+ methods.
         """
 
-        local_emotes = os.listdir(os.path.join(os.getcwd(), "emotes"))
+        local_emotes = os.listdir(app.config["EMOTES_PATH"])
         for emote_name in local_emotes:
             if self.emote == emote_name:
-                with open(os.path.join(os.getcwd(), "emotes", emote_name, "info.json")) as emote_info_file:
+                with open(os.path.join(app.config["EMOTES_PATH"], emote_name, "info.json")) as emote_info_file:
                     emote_info = json.load(emote_info_file)
-                emote_path = os.path.join(os.getcwd(), "emotes", emote_name, emote_info.get("path"))
-                emote_pil = self.__resize_emote(Image.open(emote_path))
+                emote_path = os.path.join(app.config["EMOTES_PATH"], emote_name, emote_info.get("path"))
+                emote_type = emote_info.get("type")
+                emote_pil = self.__resize_emote(Image.open(emote_path), emote_type)
                 #return self.__pillow_to_bytesio(emote_pil)
                 return emote_pil
 
@@ -109,4 +119,8 @@ class EmoteWrapper():
             return None
 
         emote_pil = Image.open(os.path.join(app.config["UPLOADS_PATH"], emote.path))
-        return emote_pil
+        emote_type = "emote"
+        if emote.path.rsplit(".", 1)[1] == "gif":
+            emote_type = "aemote"
+
+        return self.__resize_emote(emote_pil, emote_type)
