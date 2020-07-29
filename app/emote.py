@@ -83,8 +83,16 @@ class EmoteWrapper():
         """Returns a pillow image because all the post-processing is handled in fetch"""
         split = self.namespace.split("/")
         service = split[0]
-        guild = split[1]
-    
+
+        def __twitch():
+
+
+
+        with switch as {
+            'twitch': __twitch
+        }:
+            func = switch.get()
+
         # Twitch
         pass
     def __fetch_local(self):
