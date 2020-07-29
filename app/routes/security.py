@@ -14,8 +14,7 @@ def apikey_required(f):
             if key == None:
                 return jsonify({"msg": "Invalid apikey"}), 403
 
-            args = list(args)
-            args.append(key.user)
+            kwargs['user'] = key.user
 
             return f(*args, **kwargs)
 

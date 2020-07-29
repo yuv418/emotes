@@ -43,7 +43,7 @@ def api_create_emote(user):
 
     return jsonify({"msg": "Invalid file."}), 400
 
-@app.route(f"{api_prefix}/emotes", methods=["POST"])
+@app.route(f"{api_prefix}/emotes", methods=["DELETE"])
 @apikey_required
 def api_delete_emote(user):
     path = request.values.get("path")
@@ -93,6 +93,15 @@ def api_new_namespace(user):
 
     path = request.values.get("path")
     name = request.values.get("name")
+
+    if not path:
+        return jsonify({"msg": "New namespace path not provided."}), 400
+    else:
+        if Namespace.from_path(path):
+            return jsonify({"msg": "That namespace already exists."}), 400
+
+    if not name: 
+        return jsonify({"msg": "New namespace name not provided."}), 400
 
     root_path = path.split("/")[0]
     nmsp = Namespace.select().where(Namespace.slug == root_path).first()

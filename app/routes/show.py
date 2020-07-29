@@ -12,7 +12,7 @@ import re
 def normalize_size(size):
 	size = request.args.get('size')
 	if size == None:
-		size = 32
+		size = 48
 	size = re.split('x|,|-', str(size))
 	if len(size) == 1:
 		size.append(size[0])
@@ -37,11 +37,5 @@ def priority_emote(emote):
 	size = request.args.get('size')
 	size = normalize_size(size)
 
-	
-	# T~O~D~O Implement optional query: [size=[INT|INTxINT|INT,INT|INT-INT|Original]]
-	# TODO Implement 
 	emote_wrapper = EmoteWrapper(None, emote, size[0], size[1])
 	return send_file(emote_wrapper.fetch(), mimetype="image/gif")
-	#?size=64x
-	#?size=64x48
-	#?size=original
