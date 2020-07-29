@@ -5,6 +5,7 @@ from io import BytesIO
 import requests
 from emotes.wsgi import app
 from emotes.app.models import *
+import tempfile
 
 class EmoteWrapper():
     """Pull emotes from local storage, db, or api and create a nice abstraction over it"""
@@ -81,20 +82,41 @@ class EmoteWrapper():
 
     def __fetch_api(self):
         """Returns a pillow image because all the post-processing is handled in fetch"""
-        split = self.namespace.split("/")
-        service = split[0]
+        with self.namespace.split("/") as split:
+            service = split[0]
+            sub = split[1]
+            emote = split[2]
 
         def __twitch():
+            headers = {
+                'Accept': 'application/vnd.twitchtv.v5+json',
+                'Client-ID': app.config['TWITCH_CLIENT_ID']
+            }
+            streamer_id = None
+            emote_set = None
+            with requests.get(f'https://api.twitch.tv/kraken/users?login={sub}', headers=headers) as r:
+                if 'users' in r:
+                    if '_id' in r['users'][0]:
+                        streamer_id = r['users'][0]['_id']
+            with requests.get(f'https://api.twitchemotes.com/api/v4/channels/{streamer_id}') as r:
+                if 'emotes' in r:
+                    for i in r['emotes']:
+                        if i['code'] == emote:
+                            emote_id = i['id']
+            with requests.get(f'static-cdn.jtvnw.net/emoticons/v1/{emote_set}/4.0') as r:
+                with tempfile.SpooledTemporaryFile(max_size=1e9) as buffer:
+                    downloaded = 0
+                    for chunk in r.iter_content():
+                        downloaded += len(chunk)
+                        buffer.write(chunk)
+                    buffer.seek(0)
+                    i = Image.open(BytesIO(buffer.read()))
+                    return self.__resize_emote(i, 'emote')
 
-
-
-        with switch as {
+        return {
             'twitch': __twitch
-        }:
-            func = switch.get()
+        }.get(service)()
 
-        # Twitch
-        pass
     def __fetch_local(self):
         """
         Fetch local emotes from the emotes/* directory. 

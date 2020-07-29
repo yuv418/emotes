@@ -9,12 +9,16 @@ app = Flask(__name__)
 app.config.update(dict(
 	SECRET_KEY = os.environ["EMOTES_SECRET_KEY"],
 	DATABASE = 'mysql://{}:{}@{}:3306/{}'.format(
+		os.environ["EMOTES_DB_USER"],
+        os.environ["EMOTES_DB_PASSWORD"],
+        os.environ["EMOTES_DB_HOST"],
+        os.environ["EMOTES_DB_DATABASE"],
 	),
 	UPLOADS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads/"),
 	EMOTES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "emotes/"),
+	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT_ID"]
 ))
 
-	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT"]
 db = FlaskDB(app)
 
 from emotes.app.routes import *
