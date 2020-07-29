@@ -15,4 +15,4 @@ Things `emotes` can do right now (not so much):
 - [ ] Simple user interface to wrap over the API
 - [x] Deployment and publicly accessible instance
 
-Created by [Lord Steggy](https://github.com/rfblock) and [cdknight](https://github.com/cdknight).
+Created by [Lord Steggy](https://github.com/rfblock), [cdknight](https://github.com/cdknight), and [Felpix](https://github.com/Felpix-Studios).
