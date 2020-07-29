@@ -1,7 +1,7 @@
-FROM python:3-buster
+FROM python:3-alpine
 COPY . /emotes
 
-RUN apt update && apt install -y build-essential python3-dev
+RUN apk update && apk add build-base python3-dev
  
 RUN pip3 install -r /emotes/requirements.txt
 

@@ -5,7 +5,6 @@ from io import BytesIO
 import requests
 from emotes.wsgi import app
 from emotes.app.models import *
-import tempfile
 
 class EmoteWrapper():
     """Pull emotes from local storage, db, or api and create a nice abstraction over it"""
@@ -81,11 +80,10 @@ class EmoteWrapper():
         return i
 
     def __fetch_api(self):
-        """Returns a pillow image because all the post-processing is handled in fetch"""
-        with self.namespace.split("/") as split:
-            service = split[0]
-            sub = split[1]
-            emote = split[2]
+        """Returns a BytesIO image"""
+        split = self.namespace.split("/")
+        service = split[0]
+        sub = split[1]
 
         def __twitch():
             headers = {
@@ -94,24 +92,25 @@ class EmoteWrapper():
             }
             streamer_id = None
             emote_set = None
+            emote_id = None
             with requests.get(f'https://api.twitch.tv/kraken/users?login={sub}', headers=headers) as r:
-                if 'users' in r:
-                    if '_id' in r['users'][0]:
-                        streamer_id = r['users'][0]['_id']
+                d = r.json()
+                print(d)
+                if 'users' in d: 
+                    if '_id' in d['users'][0]:
+                        streamer_id = d['users'][0]['_id']
             with requests.get(f'https://api.twitchemotes.com/api/v4/channels/{streamer_id}') as r:
-                if 'emotes' in r:
-                    for i in r['emotes']:
-                        if i['code'] == emote:
+                d = r.json()
+                if 'emotes' in d:
+                    for i in d['emotes']:
+                        if i['code'] == sub[0:6] + self.emote:
                             emote_id = i['id']
-            with requests.get(f'static-cdn.jtvnw.net/emoticons/v1/{emote_set}/4.0') as r:
-                with tempfile.SpooledTemporaryFile(max_size=1e9) as buffer:
-                    downloaded = 0
-                    for chunk in r.iter_content():
-                        downloaded += len(chunk)
-                        buffer.write(chunk)
-                    buffer.seek(0)
-                    i = Image.open(BytesIO(buffer.read()))
-                    return self.__resize_emote(i, 'emote')
+                            print(emote_id)
+            with requests.get(f'https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/4.0') as r:
+                k = BytesIO(r.content)
+                k.seek(0)
+                i = Image.open(k)
+                return self.__resize_emote(i, 'emote')
 
         return {
             'twitch': __twitch

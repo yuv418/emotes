@@ -10,6 +10,8 @@ class Namespace(db.Model):
 
     @staticmethod
     def from_path(path):
+        if path[-1] == "/": # Remove this trailing slash
+            path = path[:-1]
         namespaces = path.split("/")
         nmsp = Namespace.select().where(Namespace.slug == namespaces[0]).first()
         for nmsp_str in namespaces[1:]:

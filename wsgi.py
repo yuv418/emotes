@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from peewee import *
 from playhouse.flask_utils import FlaskDB
 import os
@@ -16,10 +17,13 @@ app.config.update(dict(
 	),
 	UPLOADS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads/"),
 	EMOTES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "emotes/"),
-	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT_ID"]
+	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT_ID"],
+	API_PREFIX = "/api"
 ))
 
+CORS(app)
 db = FlaskDB(app)
+api_prefix = app.config["API_PREFIX"]
 
 from emotes.app.routes import *
 from emotes.app.models import *
