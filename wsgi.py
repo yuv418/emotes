@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from peewee import *
 from playhouse.flask_utils import FlaskDB
 import os

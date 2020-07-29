@@ -1,19 +1,21 @@
 <template>
-  <div id="app">
-    <link rel="stylesheet" type="text/css" href="./styles/style.css"/>
+  <div id="app">    
     <Navbar/>
     <Search/>
+    <Popular/>
   </div>
 </template>
 
 <script>
 import Navbar from './components/Navbar.vue'
 import Search from './components/Search.vue'
+import Popular from './components/Popular.vue'
 export default {
   name: 'App',
   components: {
     Navbar,
-    Search
+    Search,
+    Popular
   }
 }
 </script>
@@ -37,5 +39,8 @@ export default {
 body{
   margin:0;
   padding:0;
+}
+i{
+  font-size: 2rem;
 }
 </style>
