@@ -106,11 +106,15 @@ class EmoteWrapper():
                         if i['code'] == sub[0:6] + self.emote:
                             emote_id = i['id']
                             print(emote_id)
-            with requests.get(f'https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/4.0') as r:
-                k = BytesIO(r.content)
-                k.seek(0)
-                i = Image.open(k)
-                return self.__resize_emote(i, 'emote')
+            try:
+                with requests.get(f'https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/4.0') as r:
+                    k = BytesIO(r.content)
+                    k.seek(0)
+                    i = Image.open(k)
+                    return self.__resize_emote(i, 'emote')
+            except:
+                return None
+
 
         return {
             'twitch': __twitch
