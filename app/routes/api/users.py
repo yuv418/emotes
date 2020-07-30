@@ -8,7 +8,6 @@ import string
 import os
 from playhouse.shortcuts import model_to_dict
 
-alphanumeric = string.ascii_letters + string.digits
 
 @app.route(f"{api_prefix}/users", methods=["POST"])
 @apikey_required

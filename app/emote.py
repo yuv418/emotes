@@ -50,7 +50,7 @@ class EmoteWrapper():
             i = BytesIO()
             image_resized.save(i, format='PNG', quality=100)
             i.seek(0)
-            return i
+            return (i, 'png')
 
         def __aemote():
             metadata = image.info
@@ -64,7 +64,7 @@ class EmoteWrapper():
             i = BytesIO()
             first.save(i, format='GIF', quality=100, save_all=True, append_images=frames_resize)
             i.seek(0)
-            return i
+            return (i, 'gif')
         switch = {
             'emote': __emote,
             'aemote': __aemote

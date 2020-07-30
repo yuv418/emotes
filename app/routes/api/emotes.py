@@ -8,6 +8,7 @@ import string
 import os
 
 allowed_ext = ['gif', 'png', 'jpeg', 'jpg']
+alphanumeric = string.ascii_letters + string.digits
 
 # GET emotes from namespace API
 
@@ -52,7 +53,7 @@ def api_delete_emote(user):
     if not namespace:
         return jsonify({"msg": "Your namespace path is invalid"}), 400
     
-    emote = namespace.emotes.select().where(Emote.slug == emote_name)
+    emote = namespace.emotes.select().where(Emote.slug == emote_name).first()
     if not emote:
         return jsonify({"msg": "Your emote is invalid"}), 400
 
