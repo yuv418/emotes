@@ -31,7 +31,7 @@ The application "installer" should print out an admin API key that you can use l
 It is fairly easy to install emotes because it has a Dockerfile. If you aren't using Docker, you will have to do these things manually, and that is not in the scope of this README for now.
 
 Run `docker build . -t <your tag here>` with your tag. In my case it's for a private Docker registry, so I use `my.domain.here/emotes:latest`. You can then push it to your registry,
-and run the image as you would any other Docker image. Make sure to set your environment variables accordingly if you're using Kubernetes or Docker-compose or the like.
+(with `docker push <your tag here>`) and run the image as you would any other Docker image. Make sure to set your environment variables accordingly if you're using Kubernetes or Docker-compose or the like.
 
 ## Features
 
