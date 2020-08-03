@@ -25,6 +25,8 @@ def api_create_emote(user):
     if not file:
         return jsonify({"msg": "Your file is invalid"}), 400
 
+    if slugify(name).lower() in [emote.slug for emote in namespace.emotes]:
+        return jsonify({"msg": "The emote already exists."}), 400
 
     info = dict(request.values)
 
