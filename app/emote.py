@@ -103,7 +103,7 @@ class EmoteWrapper():
                 d = r.json()
                 if 'emotes' in d:
                     for i in d['emotes']:
-                        if i['code'] == sub[0:6] + self.emote:
+                        if i['code'] == self.emote:
                             emote_id = i['id']
                             print(emote_id)
             try:
