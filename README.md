@@ -5,6 +5,7 @@ that don't support them?
 
 Well, `emotes` will do that for you (when we finish programming it). It will be an API so you can insert these emojis easily without having to tediously search for them. Just `GET /thonk` instead of searching Google (or Bing or your favourite search engine). Or upload your own emojis. Or `emotes` will fetch your emote for you from one of our supported providers.
 
+Looking for the API documentation. You can find it [here](API.adoc).
 
 ## Developing
 
