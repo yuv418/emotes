@@ -1,0 +1,250 @@
+= The Emotes API
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:toc:
+:toc-placement!:
+
+toc::[]
+
+== How it Works
+
+Here's where I'll go into some detail on how the entire web application works so you have a better idea of how to deal with the API in the first place, something that perhaps you wouldn't get if
+I were to just give you the list of actions you can do. So here's how `emotes` works.
+
+The entire application is composed of **users**, **namespaces**, and **emotes**. The namespaces house many emotes, like, for example, you could make a namespace for state or
+province flags. Users own namespaces. Users can own any namespace they want, as long as the namespace isn't `/`, which is the root namespace, which contains global emotes
+that anyone can use, or a reserved namespace, such as `/twitch`.
+
+Furthermore, every namespace can have a **sub-namespace**. For example, our `flags` namespace could have a sub-namespace called `us` and another one called `canada`, for American state flags, and Canadian provincial flags. If you had a namespace `flags` with a sub-namespace `us`, and your emotes domain was `example.com`, you could access any emote under the `us` namespace with `https://example.com/flags/us`.
+
+Then, under every namespace, there are **emotes**. For example, if under our `flags/canada` namespace we wanted the flag of Ontario to be available, we could upload it to the API under the name `ON` and we could then access it like before from `https://example.com/flags/canada/on`. That's basically how the entire structure of the application works.
+
+As a note, global emotes are all accessible under `/`, so if you wanted to access the emote `sad-cowbody`, and the domain again was `example.com`, then for that global emote, you'd do
+`https://example.com/sad-cowboy`. Once you understand the structure of the application, using the API is a lot more simple.
+
+In order to upload emotes, you must have a valid API key, that an administrator must create and give. There is information on how to do that in the <<User Actions>> section.
+
+== User Actions
+
+IMPORTANT: You'll need an admin API key for most of the actions regarding users. Not all of them, but most. I'll poin out when you'll need an admin API key here.
+
+=== Creating a User
+
+NOTE: You'll need an admin API key for this action.
+
+[source]
+----
+POST /api/users
+
+api_key: <1>
+name: <2>
+----
+<1> This is your admin API key.
+<2> This is a username for the user you want to create.
+
+This action returns a JSON response like this:
+
+[source,json]
+----
+{
+  "id": 1 <1>
+}
+----
+<1> The user ID for the user you just created. You can go on to use this to create an API key for that user.
+
+
+=== Creating an API Key for a User
+
+NOTE: You'll need an admin API key for this action.
+
+[source]
+----
+POST /api/users/<id>/api_key <1>
+
+api_key: <2>
+----
+<1> Make sure the ID here is the ID returned from `/api/users`.
+<2> This is your admin API key.
+
+This action returns a JSON response like this:
+
+[source,json]
+----
+{
+  "api_key": "API KEY HERE", <1>
+  "id": 1 <2>
+}
+----
+<1> This is the API key for the user you just specified. It will be 128 characters in length, and be composed of underscores, hyphens, letters, and numbers.
+<2> The user ID for the user you just created.
+
+
+=== Getting User Information
+
+NOTE: If you're not an admin, you can only get user information about yourself. If you are an admin, you can get user information about any user.
+
+[source]
+----
+GET /api/users
+
+api_key: <1>
+id: <2>
+name: <3>
+----
+<1> This can be a non-admin API key or an admin API key.
+<2> This is a user ID for a user you want to get information about. **The API will only honor this parameter if you are an admin. Otherwise, it will just ignore this parameter.**
+<3> This is an optional parameter, but either `id` or `name` must be present or the API will not find a user. This means `id` is optional if `name` is present.
+**Note that if you specify both the id and the name to search for a user, the API first searches by ID, and then by name.**
+
+WARNING: This is a bug in the API, but at the moment, one cannot access the administrator's own information without the administrator's ID or name. This will be fixed soon.
+
+This action returns a JSON response like this:
+
+[source,json]
+----
+{
+  "admin": false, <1>
+  "id": ID_HERE, <2>
+  "name": "NAME HERE", <3>
+  "namespaces": [ <4>
+    {
+      "id": 1,
+      "name": "Sample Namespace",
+      "slug": "sample-namespace"
+    }
+  ]
+}
+----
+<1> This is just a boolean for whether the user you fetched is an admin or not. As expected, it can either be `true` or `false`.
+<2> This is the ID of the user you fetched.
+<3> This is the user's username. It could be useful if you fetched by `id`, instead of fetching by `name`.
+<4> This is more interesting. This is a list of all the namespace that the user owns, **however,** this list is not complete with all the information for that namespace.
+As you can see, you'll only get the slug and the name of the namespace. Nothing else. If you want more information, such as the emotes belonging to the namespace, you'll have to make another
+request to a **namespace action.**
+
+NOTE: If you want this behaviour changed, where the namespaces as part of `/api/users` only returns a subset of information, please open an issue about it and we will add functionality for this.
+There are also plans to fix this in general later, by adding a parameter such as `namespace_info=full`.
+
+== Namespace Actions
+
+Now, we turn to namespace actions. As of now, you can **create** and **view** namespaces. There will be support to **delete** namespaces very soon.
+
+NOTE: There is no specific level/role to perform actions on namespaces. You do not have to be an admin, or not be an admin. The only requirement for
+administering actions on a namespace is that you are the creator of the namespace. However, **anyone** can view anyone else's namespace information **if** they have the namespace
+slug.
+
+=== Creating Namespaces
+
+[source]
+----
+POST /api/namespaces
+
+api_key: <1>
+path: <2>
+name: <3>
+----
+<1> This is your API key.
+<2> This is the path of your namespace. As was explained in the beginning, in <<How it Works>>, you can have parent and child namespaces. **If you try to create a child namespace without the parent
+existing, the API will instead create the parent namespace instead, under the _same name_ you used for the child namespace. Instead, you should create the parent namespace first, and then create the child namespace.** Perhaps, in the future, we will not create any namespace when the parent namespace does not exist, since this could cause unwanted problems, as there is no way to rename a namespace at the moment. You furthermore cannot create a namespace whose path conflicts with a namespace that already exists, or with a reserved namespace, like `/twitch`.
+<3> This is a friendly name for your namespace. The path of the emotes you upload is derived from the `path` parameter, so this is just to describe the namespace better in something like a user interface.
+
+
+=== Viewing Namespaces
+
+
+[source]
+----
+GET /api/namespaces/<namespace path>
+
+api_key: <1>
+----
+<1> This is your API key, as usual. As long as you have an API key and a valid namespace slug, you can get information about it.
+
+This action returns a JSON response like this:
+
+
+[source,json]
+----
+{
+  "children": [], <1>
+  "emotes": [ <2>
+    {
+      "id": 1,
+      "info": { <3>
+        "type": "(png|gif)"
+      },
+      "name": "Test",
+      "slug": "test" <4>
+    },
+  ],
+  "id": 1,
+  "name": "Namespace Name",
+  "parent": null, <5>
+  "slug": "namespace-name", <6>
+  "user": { <7>
+    "id": 1,
+    "name": "Sample User"
+  }
+}
+----
+NOTE: This is quite a long response, and they can get even longer, based on the number of emotes you've uploaded to a namespace, and whether you have parents and children in a namespace.
+
+<1> This is a list of children namespaces. Each element of the list will be another response "embedded" in with all the same information, like `user`, `id`, `emotes`, whatever.
+<2> This is a list of all the emotes in the namespace. This is also the reason we don't have a specific verb to `GET` emotes specifically, since you can do it from here.
+Each element has all the information you'll need for each emote, like its name, slug, and ID.
+<3> The info for an emote is a dictionary of metadata. Currently, the only metadata we use is `type`, to determine whether or not to render the emote as animated or as a still image.
+<4> This is the emote's slug.  You can use this to construct a path to the emote, with `namespace-slug/emote-slug`.
+<5> This is the parent. If this is a top-level namespace, this is `null`. Otherwise, it is a dictionary of values the same way that you would see in the `children` list.
+<6> This is the slug. You can use this in conjuction with the emote slug to construct a path.
+<7> This is user information. This is **not all the user information you can get.** Please use `GET /api/users` to get more information about a user from their `id`.
+
+== Emote Actions
+
+NOTE: When you fetch a namespace, you also get a list of emotes in that namespace. As such, there is no way to directly **view** a list of emotes through an emote-specific action.
+However, there **will be** a method in the emote actions soon to fetch a list of global and public emotes (the latter once it is implemented).
+
+
+=== Uploading an Emote
+
+This may perhaps be the most useful function for anyone looking to use the API, since most people will try to upload an emote to a namespace they created.
+
+
+[source]
+----
+POST /api/emotes
+
+api_key: <1>
+path: <2>
+name: <3>
+emotes_file: <4>
+type: <5>
+----
+<1> This is your API key, as usual. As long as you have an API key and a valid namespace to add your emote to, this will work.
+<2> This is the path to the namespace you want to upload your emote to. For example, if the path to your namespace is `test1/test2`, then you will want to have your `path` parameter be that:
+`test1/test2`. **If the namespace you specify doesn't exist, the API will return an error.**
+<3> This is the name of your emote. **Currently, the API uses the name of your emote to autogenerate its slug. This can be undesirable, and yet it is the only option for now. We will fix this soon.** For example, if your emote's name is "Sad Face," then the API will make your emote's slug "sad-face." The slug library also works on non-Roman characters. For example, if your emote's `name` is "깨진 차," then the slug library will make the emote's slug "ggaejin-cha."
+<4> This is the path to the file you want to upload as an emote. **This must be a file, not a string. In `curl`, for example, you can prefix your your file path with "@" to tell `curl` that you are uploading a file.** For example: `emotes_file=@~/Downloads/emote.png`
+<5> This is metadata that tells the site how to render your image. **Currently, this must either have a value of `png` (still emote) or `gif` (animated emote).**
+
+NOTE: You can add additional parameters. Any additional parameters will be saved as metadata in the `info` section when you try to fetch the emote. For example, you could add a parameter
+called `description` and that would be in the `info` dictionary that is stored with the emote.
+
+=== Deleting an Emote
+
+
+[source]
+----
+DELETE /api/emotes
+
+api_key: <1>
+path: <2>
+name: <3>
+----
+<1> This is your API key, as usual. As long as you have an API key and a valid namespace to add your emote to, this will work.
+<2> This is the path to the namespace the emote you want to delete is in.
+<3> This is the name of your emote to delete.
