@@ -31,7 +31,7 @@ In order to upload emotes, you must have a valid API key, that an administrator 
 
 == User Actions
 
-IMPORTANT: You'll need an admin API key for most of the actions regarding users. Not all of them, but most. I'll poin out when you'll need an admin API key here.
+IMPORTANT: You'll need an admin API key for most of the actions regarding users. Not all of them, but most. I'll point out when you'll need an admin API key here.
 
 === Creating a User
 
