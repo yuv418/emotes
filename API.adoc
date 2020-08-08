@@ -236,7 +236,6 @@ called `description` and that would be in the `info` dictionary that is stored w
 
 === Deleting an Emote
 
-
 [source]
 ----
 DELETE /api/emotes
@@ -248,3 +247,61 @@ name: <3>
 <1> This is your API key, as usual. As long as you have an API key and a valid namespace to add your emote to, this will work.
 <2> This is the path to the namespace the emote you want to delete is in.
 <3> This is the name of your emote to delete.
+
+=== Fetching Global Emotes
+
+You can use this action to fetch a list of global or priority emotes
+
+[source]
+----
+GET /api/emotes
+
+api_key: <1>
+slug: <2>
+name: <3>
+----
+<1> This is your API key, as usual. As long as you have an API key, this will work.
+<2> **Optional parameter.** This is a slug that you can search for to find an emote that matches that slug.
+<2> **Optional paramater.** This is a name of an emote that you want to find.
+
+[NOTE]
+====
+If you provide a slug or name parameter, the API will **search** for **one** emote and return it, as a dictionary of emote information with the
+found search result. At the moment, you cannot search for more than one global emote.
+If the API cannot find anything, it will return a a 404 error with the following JSON response.
+
+[source]
+----
+{
+  "msg": "Emote not found"
+}
+----
+====
+
+
+This action returns a JSON response like this:
+[source]
+----
+[ <1>
+  { <2>
+    "info": {
+      "type": "aemote" <3>
+    },
+    "name": "Thinkspin",
+    "slug": "thinkspin"
+  },
+  {
+    "info": {
+      "type": "emote"
+    },
+    "name": "Emote Name Two", <4>
+    "slug": "emote-name-two" <5>
+  },
+]
+----
+<1> This action returns a JSON list of emotes.
+<2> Each element of the list is a dictionary with the data about the emote. This includes fields like `info`, which contain emote metadata.
+<3> This is the emote's `type`. It can either be an animated emote (`aemote`), or an emote (`emote`).
+<4> This is the emote's `name`. It is a full name that you might use in a UI.
+<5> This is the emote's `slug`. This is what you'd use to access the emote. For all global emotes, the path to the emote is `/<slug>`. For example, to access `Emote Name Two`,
+you would use the url `/emote-name-two`.

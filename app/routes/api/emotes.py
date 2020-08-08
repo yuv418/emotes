@@ -81,5 +81,8 @@ def api_global_emotes(user):
     if local_slug:
         return local_slug
 
+    if not local_slug and not local_name:
+        return jsonify({"msg": "Emote not found"}), 404
+
 
     return jsonify(Emote.local_emotes())
