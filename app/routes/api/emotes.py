@@ -6,6 +6,7 @@ from slugify import slugify
 import secrets
 import string
 import os
+import json
 
 allowed_ext = ['gif', 'png', 'jpeg', 'jpg']
 alphanumeric = string.ascii_letters + string.digits
@@ -50,6 +51,9 @@ def api_create_emote(user):
 def api_delete_emote(user):
     path = request.values.get("path")
     emote_name = request.values.get("name")
+    scope = request.values.get("scope")
+
+
     
     namespace = Namespace.from_path(path)
     if not namespace:
@@ -61,3 +65,21 @@ def api_delete_emote(user):
 
     emote.delete_instance()
     return jsonify({"msg": "Emote deleted."})
+
+@app.route(f"{api_prefix}/emotes")
+@apikey_required
+def api_global_emotes(user):
+    """Get a list of local/priority/global emotes."""
+    name = request.values.get("name")
+    slug = request.values.get("slug")
+
+    local_name =  Emote.local_emote(name=name)
+    if local_name:
+        return local_name
+
+    local_slug = Emote.local_emote(slug=slug)
+    if local_slug:
+        return local_slug
+
+
+    return jsonify(Emote.local_emotes())

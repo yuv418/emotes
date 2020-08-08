@@ -11,3 +11,4 @@ gunicorn
 Flask-CORS
 Flask-Caching
 peewee_migrate2
+titlecase
