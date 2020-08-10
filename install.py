@@ -9,7 +9,9 @@ def install():
         User,
         Namespace,
         ApiKey,
-        Emote
+        Emote,
+        Image,
+        ResizedImage
     ])
 
     # Create an admin if they don't exist

@@ -53,6 +53,9 @@ class EmoteWrapper():
             return (i, 'png')
 
         def __aemote():
+            # Rules to start a new image processing task:
+            # The animated emote hasn't been resized yet
+            # The animated emote was requested under a size that hasn't been scaled yet
             metadata = image.info
 
             # Extract the frames for resizing
