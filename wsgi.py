@@ -23,7 +23,8 @@ app.config.update(dict(
 	API_PREFIX = "/api",
 	CACHE_TYPE = "simple",
         CELERY_BROKER_URL='redis://localhost:6379/0',
-        CELERY_RESULT_BACKEND='redis://localhost:6379/0' # TODO figure out what the /0 means.
+        CELERY_RESULT_BACKEND='redis://localhost:6379/0', # TODO figure out what the /0 means.
+        ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp']
 ))
 
 CORS(app)

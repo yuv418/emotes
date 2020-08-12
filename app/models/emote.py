@@ -1,8 +1,10 @@
 from emotes.wsgi import db, app
 from emotes.app.models.namespace import *
+from emotes.app.models.image import *
 from peewee import *
 from playhouse.mysql_ext import JSONField
-from playhouse.signals import Model, pre_delete
+from playhouse.signals import Model, pre_delete, post_save
+from playhouse.hybrid import *
 from titlecase import titlecase
 import os
 import json
@@ -14,6 +16,12 @@ class Emote(Model):
     info = JSONField()
     namespace = ForeignKeyField(Namespace, backref='emotes')
 
+    @hybrid_property
+    def image(self):
+        try:
+            return self.images.get()
+        except Exception: # Doesn't exist.
+            return None
 
     @staticmethod
     def local_emotes() -> list:
@@ -58,10 +66,17 @@ class Emote(Model):
     class Meta:
         database = db.database
 
+@post_save(sender=Emote)
+def create_linked_image(model_class, instance, created):
+    from emotes.app.models.image import Image # This is very much a hack.
+    print(instance)
+    new_image = Image.from_file(instance, instance.file)
+    new_image.save()
+
 
 @pre_delete(sender=Emote)
 def delete_uploaded_emote(model_class, instance):
-    emote_path = os.path.join(app.config["UPLOADS_PATH"], instance.path)
-    os.remove(emote_path)
 
-    print(f"Deleted emote {emote_path} from uploads successfully.")
+    if instance.image:
+        instance.image.delete_instance()
+
