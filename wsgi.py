@@ -4,8 +4,10 @@ from flask_caching import Cache
 from peewee import *
 from playhouse.flask_utils import FlaskDB
 from celery import Celery
+from dotenv import load_dotenv
 import os
 
+load_dotenv(verbose=True, dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".flaskenv"))
 
 app = Flask(__name__)
 # TODO slack
@@ -27,10 +29,25 @@ app.config.update(dict(
         ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp']
 ))
 
+def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
+    celery = Celery(app.import_name, backend=app.config["CELERY_RESULT_BACKEND"],
+                  broker=app.config["CELERY_BROKER_URL"])
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+    class ContextTask(TaskBase):
+          abstract = True
+          def __call__(self, *args, **kwargs):
+              with app.app_context():
+                  return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+
 CORS(app)
 db = FlaskDB(app)
 cache = Cache(app)
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = make_celery(app)
 celery.conf.update(app.config)
 
 api_prefix = app.config["API_PREFIX"]

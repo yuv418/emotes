@@ -77,6 +77,7 @@ def create_linked_image(model_class, instance, created):
 @pre_delete(sender=Emote)
 def delete_uploaded_emote(model_class, instance):
 
+    # TODO make these celery tasks, since deleting can take a while.
     if instance.image:
         instance.image.delete_instance()
 

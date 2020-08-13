@@ -4,6 +4,7 @@ from peewee import *
 from playhouse.signals import Model, pre_delete
 from titlecase import titlecase
 from werkzeug.datastructures import FileStorage
+from emotes.app.tasks.resize import resize_image
 import os
 import json
 import string
@@ -23,20 +24,42 @@ class Image(Model):
         """
         Creates this image and runs tasks to cache 32x32, 48x48, 64x64, 128x128, and 256x256 version resized images.
         """
+
         file_ext = file.filename.rsplit(".", 1)[1]
         if file_ext in app.config["ALLOWED_EXT"]:
             filename = ''.join([secrets.choice(alphanumeric) for i in range(64)]) + f".{file_ext}"
+            file.stream.seek(0)
             file.save(os.path.join(app.config["UPLOADS_PATH"], filename))
 
-            print(f"Creating with emote {emote}")
+            print(f"Creating image with emote `{emote.name}`")
             new_image = Image(original=filename, emote=emote)
             new_image.save()
 
+            new_image.size(32, 32)
+            new_image.size(48, 48)
+            new_image.size(64, 64)
+            new_image.size(128, 128)
+            new_image.size(256, 256)
+
             return new_image
 
-    def size(width, height):
+    def size(self, width, height):
         """Returns a processed ResizedImage of the size requested. If the image doesn't exist, this will create it, and return an unprocessed ResizedImage."""
-        pass
+
+        print(f"Size method for image for {width}x{height}")
+
+        resized_image = ResizedImage.select().where(ResizedImage.width == width and ResizedImage.height == height).first()
+        if resized_image:
+            return resized_image
+
+        resized_image = ResizedImage(width=width, height=height, image=self)
+        resized_image.save()
+
+        task = resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face
+
+        return resized_image
+
+
 
 
 @pre_delete(sender=Image)
@@ -65,10 +88,12 @@ class ResizedImage(Model):
 
 @pre_delete(sender=ResizedImage)
 def delete_resized_image(model_class, instance):
-    resized_emote_path = os.path.join(app.config["UPLOADS_PATH"], instance.path)
-    try:
-        os.remove(resized_emote_path)
+    if instance.processed: # Only do if it was resized.
+        resized_emote_path = os.path.join(app.config["UPLOADS_PATH"], instance.path)
 
-    except FileNotFoundError:
-        # see reasoning in other pre_delete
-        pass
+        try:
+            os.remove(resized_emote_path)
+
+        except FileNotFoundError:
+            # see reasoning in other pre_delete
+            pass
