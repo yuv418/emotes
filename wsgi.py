@@ -18,6 +18,7 @@ app.config.update(dict(
 	),
 	UPLOADS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads/"),
 	EMOTES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "emotes/"),
+        MIGRATIONS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "migrator", "migrations"),
 	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT_ID"],
 	API_PREFIX = "/api",
 	CACHE_TYPE = "simple",
@@ -31,6 +32,7 @@ api_prefix = app.config["API_PREFIX"]
 
 from emotes.app.routes import *
 from emotes.app.models import *
+from emotes.migrator import *
 from emotes.install import *
 
 install()
