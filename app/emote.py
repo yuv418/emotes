@@ -36,6 +36,7 @@ class EmoteWrapper():
         #return self.__pillow_to_bytesio(self.__resize_emote(img))
         if img:
             return img
+
         return None
 
     def __resize_emote(self, image, _type):
@@ -154,9 +155,11 @@ class EmoteWrapper():
         if not emote:
             return None
 
-        emote_pil = Image.open(os.path.join(app.config["UPLOADS_PATH"], emote.path))
-        emote_type = "emote"
-        if emote.path.rsplit(".", 1)[1] == "gif":
-            emote_type = "aemote"
+        emote_resize = emote.image.size(self.width, self.height)
+        if emote_resize.processed: # We want to return something like a "msg": "Image processing." if the image hasn't processed yet.
+            with open(os.path.join(app.config["UPLOADS_PATH"], emote_resize.path), 'rb') as emote_img_f:
+                emote_file = BytesIO(emote_img_f.read())
 
-        return self.__resize_emote(emote_pil, emote_type)
+            return (emote_file, emote.info['type'])
+
+        return 'processing'
