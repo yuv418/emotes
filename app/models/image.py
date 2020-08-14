@@ -43,6 +43,7 @@ class Image(Model):
 
             return new_image
 
+
     def size(self, width, height):
         """Returns a processed ResizedImage of the size requested. If the image doesn't exist, this will create it, and return an unprocessed ResizedImage."""
 
