@@ -4,6 +4,7 @@ from flask_caching import Cache
 from peewee import *
 from playhouse.flask_utils import FlaskDB
 from celery import Celery
+from celery.bin import worker
 from dotenv import load_dotenv
 import os
 

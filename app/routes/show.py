@@ -16,8 +16,7 @@ def normalize_size(size):
 	return size
 
 @app.route('/<path:namespace>/<emote>') 
-@cache.cached(timeout=10)
-def namespaced_emote(namespace, emote):	
+def namespaced_emote(namespace, emote):
 	size = request.args.get('size')
 	size = normalize_size(size)
 
@@ -33,13 +32,15 @@ def namespaced_emote(namespace, emote):
 	return jsonify({"msg": "Emote not found"}), 404
 
 @app.route('/<emote>') 
-@cache.cached()
 def priority_emote(emote):
 	size = request.args.get('size')
 	size = normalize_size(size)
 
 	emote_wrapper = EmoteWrapper(None, emote, size[0], size[1])
 	emote_bytesio = emote_wrapper.fetch()
+	if emote_bytesio == 'processing':
+		return jsonify({"msg": "Image processing"}), 202
+
 	if emote_bytesio:
 		return send_file(emote_bytesio[0], mimetype=f"image/{emote_bytesio[1]}")
 

@@ -67,10 +67,11 @@ class Emote(Model):
 
 @post_save(sender=Emote)
 def create_linked_image(model_class, instance, created):
-    from emotes.app.models.image import Image # This is very much a hack.
-    print(instance)
-    new_image = Image.from_file(instance, instance.file)
-    new_image.save()
+    if created:
+        from emotes.app.models.image import Image # This is very much a hack.
+        print(instance)
+        new_image = Image.from_file(instance, instance.file)
+        new_image.save()
 
 
 @pre_delete(sender=Emote)

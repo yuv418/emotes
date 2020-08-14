@@ -140,11 +140,30 @@ class EmoteWrapper():
             if self.emote == emote_name:
                 with open(os.path.join(app.config["EMOTES_PATH"], emote_name, "info.json")) as emote_info_file:
                     emote_info = json.load(emote_info_file)
+
                 emote_path = os.path.join(app.config["EMOTES_PATH"], emote_name, emote_info.get("path"))
                 emote_type = emote_info.get("type")
-                emote_pil = self.__resize_emote(PILImage.open(emote_path), emote_type)
-                #return self.__pillow_to_bytesio(emote_pil)
-                return emote_pil
+
+                try:
+                    image = Image.select().where(Image.original == emote_path).get()
+                    resized_image = image.size(self.width, self.height)
+                    print(image.original)
+                    if resized_image.processed:
+                        with open(os.path.join(app.config["UPLOADS_PATH"], resized_image.path), 'rb') as emote_img_f:
+                            emote_file = BytesIO(emote_img_f.read())
+
+
+                        if emote_type == "aemote":
+                            emote_type = 'gif'
+                        else:
+                            emote_type = 'png'
+                        return (emote_file, emote_type)
+
+                except Image.DoesNotExist:
+                    image = Image(original=emote_path)
+                    image.save()
+
+                    return 'processing'
 
 
         

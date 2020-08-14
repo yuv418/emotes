@@ -4,6 +4,7 @@ from io import BytesIO
 import secrets
 import os
 import string
+import json
 
 alphanumeric = string.ascii_letters + string.digits
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -11,18 +12,41 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 @celery.task()
 def resize_image(resized_image_id):
     """"Resizes the emote so it appears similar to a 32x32 discord emoji. Returns a BytesIO"""
+    print("Started resize task.")
     from emotes.app.models.image import ResizedImage
 
     resized_image = ResizedImage.select().where(ResizedImage.id == resized_image_id).first()
 
-    image = Image.open(os.path.join(app.config["UPLOADS_PATH"], resized_image.image.original))
-    file_ext = resized_image.image.original.rsplit(".", 1)[1]
-    emote_type = resized_image.image.emote.info['type']
+    if resized_image.image.emote_id:
+        image = Image.open(os.path.join(app.config["UPLOADS_PATH"], resized_image.image.original))
+    else:
+        image = Image.open(resized_image.image.original)
 
-    if emote_type == 'png': # DB hack.
-        emote_type = 'emote'
-    elif emote_type == 'gif':
-        emote_type = 'aemote'
+    file_ext = resized_image.image.original.rsplit(".", 1)[1]
+    emote_type = ''
+    emote_name = ''
+
+    if resized_image.image.emote_id: # For DB emotes
+        emote_type = resized_image.image.emote.info['type']
+        emote_name = resized_image.image.emote.name
+
+        if emote_type == 'png': # DB hack.
+            emote_type = 'emote'
+        elif emote_type == 'gif':
+            emote_type = 'aemote'
+    else: # For local emotes
+        dirname = os.path.dirname(resized_image.image.original)
+        print(dirname + " is dirname")
+        info_path = os.path.join(dirname, "info.json")
+
+        emote_name = os.path.basename(os.path.dirname(dirname))
+
+        with open(info_path) as info_f:
+            info = json.load(info_f)
+            emote_type = info['type']
+
+
+
 
     outfile_name = ''.join([secrets.choice(alphanumeric) for i in range(64)]) + f".{file_ext}"
     outfile_path = os.path.join(app.config["UPLOADS_PATH"], outfile_name)
@@ -30,7 +54,7 @@ def resize_image(resized_image_id):
     width = resized_image.width
     height = resized_image.height
 
-    print(f"Dispatch task to resize emote {resized_image.image.emote.name} to size {width}x{height}")
+    print(f"Dispatch task to resize local emote {emote_name} to size {width}x{height}")
 
     # Get the resize % for the image
     resize_width = width / image.width

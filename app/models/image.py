@@ -49,8 +49,13 @@ class Image(Model):
 
         print(f"Size method for image for {width}x{height}")
 
-        resized_image = ResizedImage.select().where(ResizedImage.width == width and ResizedImage.height == height).first()
+        resized_image = ResizedImage.select().where(ResizedImage.width == width and ResizedImage.height == height).where(ResizedImage.image == self).first()
         if resized_image:
+            print(resized_image.height)
+            if not resized_image.processed:
+                resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face
+                return resized_image
+
             return resized_image
 
         resized_image = ResizedImage(width=width, height=height, image=self)
@@ -60,6 +65,16 @@ class Image(Model):
 
         return resized_image
 
+@post_save(sender=Image)
+def autosize(model, new_image, created):
+    """Auto-size commonly used sizes of emotes."""
+
+    print("Running sizings")
+    new_image.size(32, 32)
+    new_image.size(48, 48)
+    new_image.size(64, 64)
+    new_image.size(128, 128)
+    new_image.size(256, 256)
 
 
 
