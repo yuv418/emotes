@@ -25,9 +25,9 @@ app.config.update(dict(
 	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT_ID"],
 	API_PREFIX = "/api",
 	CACHE_TYPE = "simple",
-        CELERY_BROKER_URL='redis://localhost:6379/0',
-        CELERY_RESULT_BACKEND='redis://localhost:6379/0', # TODO figure out what the /0 means.
-        ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp']
+    CELERY_BROKER_URL=os.environ["EMOTES_CELERY_BROKER_URL"],
+    CELERY_RESULT_BACKEND=os.environ["EMOTES_CELERY_RESULT_BACKEND"],
+    ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp']
 ))
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/

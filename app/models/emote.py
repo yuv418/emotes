@@ -10,7 +10,6 @@ import os
 import json
 
 class Emote(Model):
-    path = TextField()
     name = CharField()
     slug = CharField()
     info = JSONField()

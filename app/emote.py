@@ -1,4 +1,5 @@
-from PIL import Image, ImageSequence
+from PIL import ImageSequence as PILImageSequence
+from PIL import Image as PILImage
 import os
 import json
 from io import BytesIO
@@ -47,7 +48,7 @@ class EmoteWrapper():
         resize_height = self.height/ image.height
         resize_value = min(resize_width, resize_height)
         def __emote():
-            image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.HAMMING)
+            image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=PILImage.HAMMING)
             i = BytesIO()
             image_resized.save(i, format='PNG', quality=100)
             i.seek(0)
@@ -61,8 +62,8 @@ class EmoteWrapper():
 
             # Extract the frames for resizing
             frames_resize = []
-            for frame in ImageSequence.Iterator(image):
-                frames_resize.append(frame.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.BOX))
+            for frame in PILImageSequence.Iterator(image):
+                frames_resize.append(frame.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=PILImage.BOX))
             first = next(iter(frames_resize))
             first.info = metadata
             i = BytesIO()
@@ -114,7 +115,7 @@ class EmoteWrapper():
                 with requests.get(f'https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/4.0') as r:
                     k = BytesIO(r.content)
                     k.seek(0)
-                    i = Image.open(k)
+                    i = PILImage.open(k)
                     return self.__resize_emote(i, 'emote')
             except:
                 return None
@@ -141,7 +142,7 @@ class EmoteWrapper():
                     emote_info = json.load(emote_info_file)
                 emote_path = os.path.join(app.config["EMOTES_PATH"], emote_name, emote_info.get("path"))
                 emote_type = emote_info.get("type")
-                emote_pil = self.__resize_emote(Image.open(emote_path), emote_type)
+                emote_pil = self.__resize_emote(PILImage.open(emote_path), emote_type)
                 #return self.__pillow_to_bytesio(emote_pil)
                 return emote_pil
 
