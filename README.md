@@ -15,7 +15,7 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-You also need a valid MySQL/MariaDB database to develop emotes. Installing that
+You also need a valid MySQL/MariaDB database, and a Redis server to develop emotes. Installing that
 is out of the scope of this readme. In addition, you will need a valid Twitch client ID if you want to develop the Twitch integration.
 Next, copy the `.flaskenv.sample` to `.flaskenv`.
 ```bash
@@ -24,6 +24,8 @@ cp .flaskenv.sample .flaskenv
 
 With your flaskenv, fill in the variables with their appropriate values. You should also probably set FLASK_DEBUG to 1 if you are developing the application,
 otherwise Flask will not reload every time you make a change in the files. Then, you can run the application with `flask run`.
+Furthermore, you need to start up a celery worker or emote caching will be completely unfunctional. `celery -A emotes.wsgi.celery -c 1 worker` is the command for this.
+
 
 The application "installer" should print out an admin API key that you can use later. You can now develop the program as normal.
 

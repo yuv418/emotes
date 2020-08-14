@@ -8,8 +8,6 @@ import string
 import os
 import json
 
-allowed_ext = ['gif', 'png', 'jpeg', 'jpg']
-alphanumeric = string.ascii_letters + string.digits
 
 # GET emotes from namespace API
 
@@ -23,6 +21,7 @@ def api_create_emote(user):
         return jsonify({"msg": "Your namespace path is invalid"}), 400
 
     file = request.files.get("emotes_file")
+    print(file)
     if not file:
         return jsonify({"msg": "Your file is invalid"}), 400
 
@@ -36,11 +35,11 @@ def api_create_emote(user):
     del info['api_key']
 
     file_ext = file.filename.rsplit(".", 1)[1]
-    if file_ext in allowed_ext:
+    if file_ext in app.config["ALLOWED_EXT"]:
         filename = ''.join([secrets.choice(alphanumeric) for i in range(64)]) + f".{file_ext}"
         file.save(os.path.join(app.config["UPLOADS_PATH"], filename))
 
-        new_emote = Emote(path=filename, name=name, info=info, namespace=namespace, slug=slugify(name).lower())
+        new_emote = Emote(path=filename, name=name, info=info, file=file, namespace=namespace, slug=slugify(name).lower())
         new_emote.save()
         return jsonify({"msg": "Uploaded", "path": f"{namespace.path()}{new_emote.slug}"})
 

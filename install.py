@@ -10,6 +10,8 @@ def install():
         Namespace,
         ApiKey,
         Emote,
+        Image,
+        ResizedImage,
         Version
     ])
 
