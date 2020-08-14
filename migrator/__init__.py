@@ -34,8 +34,6 @@ def migrate():
         version = Version(version=datetime(1970, 1, 1))
         version.save()
 
-        return # We installed, so nothing more to do.
-
 
     index_begin = -1
 
