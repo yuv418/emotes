@@ -33,9 +33,8 @@ api_prefix = app.config["API_PREFIX"]
 from emotes.app.routes import *
 from emotes.app.models import *
 from emotes.migrator import *
-from emotes.install import *
 
-install()
+migrate()
 
 if __name__ == '__main__':
 	app.run(host='127.0.0.1', port=8000)

@@ -9,7 +9,8 @@ def install():
         User,
         Namespace,
         ApiKey,
-        Emote
+        Emote,
+        Version
     ])
 
     # Create an admin if they don't exist
@@ -23,7 +24,8 @@ def install():
         admin_key.save()
         print(f"Installer: admin's api key is {admin_key.value}.\nKeep this value VERY safely.")
     else:
-        print("Installer: admin already created, skipping.")
+        pass
+        # print("Installer: admin already created, skipping.")
 
 if __name__ == "__main__":
     install()
