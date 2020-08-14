@@ -23,6 +23,10 @@ def namespaced_emote(namespace, emote):
 
 	emote_wrapper = EmoteWrapper(namespace, emote, size[0], size[1])
 	emote_bytesio = emote_wrapper.fetch()
+
+	if emote_bytesio == 'processing':
+		return jsonify({"msg": "Image processing"}), 202
+
 	if emote_bytesio:
 		return send_file(emote_bytesio[0], mimetype=f"image/{emote_bytesio[1]}")
 
