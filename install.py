@@ -29,5 +29,6 @@ def install():
         pass
         # print("Installer: admin already created, skipping.")
 
+
 if __name__ == "__main__":
     install()

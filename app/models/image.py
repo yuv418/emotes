@@ -50,9 +50,27 @@ class Image(Model):
         print(f"Size method for image for {width}x{height}")
 
         resized_image = ResizedImage.select().where(ResizedImage.width == width and ResizedImage.height == height).where(ResizedImage.image == self).first()
+        type = 'emote'
+
+        if not self.emote_id:
+            dirname = os.path.dirname(self.original)
+            info_path = os.path.join(dirname, "info.json")
+
+            with open(info_path) as info_f:
+                info = json.load(info_f)
+            if info['type'] == 'gif':
+                type = 'aemote'
+            else:
+                type = 'emote'
+           
         if resized_image:
             print(resized_image.height)
             if not resized_image.processed:
+                if not self.emote_id:
+                    if type == 'emote':
+                        resize_image(resized_image.id)
+                        return resized_image
+
                 resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face
                 return resized_image
 
@@ -60,6 +78,16 @@ class Image(Model):
 
         resized_image = ResizedImage(width=width, height=height, image=self)
         resized_image.save()
+
+        if not self.emote_id:
+            if type == 'emote':
+                print("Here")
+
+                resize_task = resize_image.delay(resized_image.id)
+                resize_task.wait()
+
+                print(resized_image.processed)
+                return resized_image
 
         task = resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face
 
