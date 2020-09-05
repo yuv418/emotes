@@ -5,6 +5,7 @@ from playhouse.signals import Model, pre_delete
 from titlecase import titlecase
 from werkzeug.datastructures import FileStorage
 from emotes.app.tasks.resize import resize_image
+from time import sleep
 import os
 import json
 import string
@@ -14,7 +15,7 @@ alphanumeric = string.ascii_letters + string.digits
 class Image(Model):
     """Model to keep track of resized images as part of emotes."""
     original = TextField() # Path to original image
-    emote = ForeignKeyField(Emote, backref='images', unique=True)
+    emote = ForeignKeyField(Emote, backref='images', unique=True, null=True)
 
     class Meta:
         database = db.database
@@ -80,13 +81,11 @@ class Image(Model):
         resized_image.save()
 
         if not self.emote_id:
-            if type == 'emote':
-                print("Here")
+            if type == 'emote': # If this is an emote, we can resize it if it hasn't been resized synchronously since there won't be a significant performance impact.
 
-                resize_task = resize_image.delay(resized_image.id)
-                resize_task.wait()
+                task = resize_image(resized_image.id)
+                resized_image = ResizedImage.get(ResizedImage.id == resized_image.id) # Reload model so changes and updates are reflected.
 
-                print(resized_image.processed)
                 return resized_image
 
         task = resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face

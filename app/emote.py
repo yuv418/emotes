@@ -147,7 +147,7 @@ class EmoteWrapper():
                 try:
                     image = Image.select().where(Image.original == emote_path).get()
                     resized_image = image.size(self.width, self.height)
-                    print(image.original)
+                    print(f"The original image is {image.original}")
                     if resized_image.processed:
                         with open(os.path.join(app.config["UPLOADS_PATH"], resized_image.path), 'rb') as emote_img_f:
                             emote_file = BytesIO(emote_img_f.read())
@@ -162,6 +162,21 @@ class EmoteWrapper():
                 except Image.DoesNotExist:
                     image = Image(original=emote_path)
                     image.save()
+
+                    resized_image = image.size(self.width, self.height)
+
+                    print("Here at image.doesnotexist")
+                    if resized_image.processed:
+                        with open(os.path.join(app.config["UPLOADS_PATH"], resized_image.path), 'rb') as emote_img_f:
+                            emote_file = BytesIO(emote_img_f.read())
+
+
+                        if emote_type == "aemote":
+                            emote_type = 'gif'
+                        else:
+                            emote_type = 'png'
+
+                        return (emote_file, emote_type)
 
                     return 'processing'
 
