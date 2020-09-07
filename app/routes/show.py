@@ -17,6 +17,8 @@ def normalize_size(size):
 
 @app.route('/<path:namespace>/<emote>') 
 def namespaced_emote(namespace, emote):
+	if emote.endswith(".gif"):
+		emote = emote.split(".gif")[0]
 	size = request.args.get('size')
 	size = normalize_size(size)
 
@@ -33,6 +35,8 @@ def namespaced_emote(namespace, emote):
 
 @app.route('/<emote>') 
 def priority_emote(emote):
+	if emote.endswith(".gif"):
+		emote = emote.split(".gif")[0]
 	size = request.args.get('size')
 	size = normalize_size(size)
 
