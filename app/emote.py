@@ -1,4 +1,5 @@
-from PIL import Image, ImageSequence
+from PIL import ImageSequence as PILImageSequence
+from PIL import Image as PILImage
 import os
 import json
 from io import BytesIO
@@ -36,6 +37,7 @@ class EmoteWrapper():
         #return self.__pillow_to_bytesio(self.__resize_emote(img))
         if img:
             return img
+
         return None
 
     def __resize_emote(self, image, _type):
@@ -46,25 +48,28 @@ class EmoteWrapper():
         resize_height = self.height/ image.height
         resize_value = min(resize_width, resize_height)
         def __emote():
-            image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.HAMMING)
+            image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=PILImage.HAMMING)
             i = BytesIO()
             image_resized.save(i, format='PNG', quality=100)
             i.seek(0)
-            return i
+            return (i, 'png')
 
         def __aemote():
+            # Rules to start a new image processing task:
+            # The animated emote hasn't been resized yet
+            # The animated emote was requested under a size that hasn't been scaled yet
             metadata = image.info
 
             # Extract the frames for resizing
             frames_resize = []
-            for frame in ImageSequence.Iterator(image):
-                frames_resize.append(frame.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.BOX))
+            for frame in PILImageSequence.Iterator(image):
+                frames_resize.append(frame.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=PILImage.BOX))
             first = next(iter(frames_resize))
             first.info = metadata
             i = BytesIO()
             first.save(i, format='GIF', quality=100, save_all=True, append_images=frames_resize)
             i.seek(0)
-            return i
+            return (i, 'gif')
         switch = {
             'emote': __emote,
             'aemote': __aemote
@@ -110,7 +115,7 @@ class EmoteWrapper():
                 with requests.get(f'https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/4.0') as r:
                     k = BytesIO(r.content)
                     k.seek(0)
-                    i = Image.open(k)
+                    i = PILImage.open(k)
                     return self.__resize_emote(i, 'emote')
             except:
                 return None
@@ -135,11 +140,45 @@ class EmoteWrapper():
             if self.emote == emote_name:
                 with open(os.path.join(app.config["EMOTES_PATH"], emote_name, "info.json")) as emote_info_file:
                     emote_info = json.load(emote_info_file)
+
                 emote_path = os.path.join(app.config["EMOTES_PATH"], emote_name, emote_info.get("path"))
                 emote_type = emote_info.get("type")
-                emote_pil = self.__resize_emote(Image.open(emote_path), emote_type)
-                #return self.__pillow_to_bytesio(emote_pil)
-                return emote_pil
+
+                try:
+                    image = Image.select().where(Image.original == emote_path).get()
+                    resized_image = image.size(self.width, self.height)
+                    print(f"The original image is {image.original}")
+                    if resized_image.processed:
+                        with open(os.path.join(app.config["UPLOADS_PATH"], resized_image.path), 'rb') as emote_img_f:
+                            emote_file = BytesIO(emote_img_f.read())
+
+
+                        if emote_type == "aemote":
+                            emote_type = 'gif'
+                        else:
+                            emote_type = 'png'
+                        return (emote_file, emote_type)
+
+                except Image.DoesNotExist:
+                    image = Image(original=emote_path)
+                    image.save()
+
+                    resized_image = image.size(self.width, self.height)
+
+                    print("Here at image.doesnotexist")
+                    if resized_image.processed:
+                        with open(os.path.join(app.config["UPLOADS_PATH"], resized_image.path), 'rb') as emote_img_f:
+                            emote_file = BytesIO(emote_img_f.read())
+
+
+                        if emote_type == "aemote":
+                            emote_type = 'gif'
+                        else:
+                            emote_type = 'png'
+
+                        return (emote_file, emote_type)
+
+                    return 'processing'
 
 
         
@@ -151,9 +190,11 @@ class EmoteWrapper():
         if not emote:
             return None
 
-        emote_pil = Image.open(os.path.join(app.config["UPLOADS_PATH"], emote.path))
-        emote_type = "emote"
-        if emote.path.rsplit(".", 1)[1] == "gif":
-            emote_type = "aemote"
+        emote_resize = emote.image.size(self.width, self.height)
+        if emote_resize.processed: # We want to return something like a "msg": "Image processing." if the image hasn't processed yet.
+            with open(os.path.join(app.config["UPLOADS_PATH"], emote_resize.path), 'rb') as emote_img_f:
+                emote_file = BytesIO(emote_img_f.read())
 
-        return self.__resize_emote(emote_pil, emote_type)
+            return (emote_file, emote.info['type'])
+
+        return 'processing'

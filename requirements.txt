@@ -9,3 +9,8 @@ requests
 awesome-slugify
 gunicorn
 Flask-CORS
+Flask-Caching
+peewee_migrate2
+titlecase
+celery
+redis
