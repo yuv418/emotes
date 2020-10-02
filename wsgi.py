@@ -10,7 +10,7 @@ import os
 
 load_dotenv(verbose=True, dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".flaskenv"))
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "app/templates"))
 # TODO slack
 app.config.update(dict(
 	SECRET_KEY = os.environ["EMOTES_SECRET_KEY"],

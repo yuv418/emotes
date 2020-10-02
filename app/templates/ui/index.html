@@ -1,0 +1,35 @@
+{% extends "ui/base.html" %}
+
+{% block content %}
+<h1>local emotes</h1>
+
+<table>
+    <!-- max rows: 6 -->
+
+    {% for i in range(rows) %}
+      <tr>
+        {% set cols = local_emotes | length // rows %}
+        {% for j in range(cols) %}
+          <td>
+            <div>
+                {% set emote = local_emotes[(i*cols)+j] %}
+                <img src="/{{ emote.slug }}" />
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+
+    {% endfor %}
+
+    {% for j in range(local_emotes | length % rows) %}
+      <td>
+        <div>
+            {% set emote = local_emotes[(local_emotes | length // rows)*rows + j] %}
+            <img src="/{{ emote.slug }}" />
+        </div>
+      </td>
+    {% endfor %}
+</table>
+
+{% endblock %}

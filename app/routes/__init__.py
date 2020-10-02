@@ -7,3 +7,4 @@ def favicon():
 
 from emotes.app.routes.api import *
 from emotes.app.routes.show import *
+from emotes.app.routes.ui import *
