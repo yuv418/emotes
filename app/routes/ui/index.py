@@ -11,4 +11,4 @@ def index():
     local_emotes = Emote.local_emotes()
     rows = math.floor(math.sqrt(len(local_emotes)))
 
-    return render_template("ui/index.html", rows=rows, local_emotes=local_emotes)
+    return render_template("ui/index.html", local_emotes=local_emotes)
