@@ -33,7 +33,8 @@ app.config.update(dict(
 	CACHE_TYPE = "simple",
     CELERY_BROKER_URL=os.environ["EMOTES_CELERY_BROKER_URL"],
     CELERY_RESULT_BACKEND=os.environ["EMOTES_CELERY_RESULT_BACKEND"],
-    ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp']
+    ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp'],
+    DOMAIN = os.environ.get("EMOTES_DOMAIN")
 ))
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
