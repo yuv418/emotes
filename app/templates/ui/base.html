@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="stylesheet" href="/static/style/base.css">
         <!-- Place favicon.ico in the root directory -->
 
     </head>
@@ -30,25 +31,6 @@
         <div class="header">
             <h1>emotes</h1>
         </div>
-
-        <!--this is only done because stemngy is too lazy to add a css file-->
-        <style>
-            body {
-                width: 100vw;
-                height: 100vh;
-                overflow: hidden;
-            }
-            #sidebar-info {
-                top: 0;
-                bottom: 0;
-                left: 0;
-                height: 100%;
-                background-color: black;
-                color: white;
-                float: left;
-                animation-name: open;
-            }
-        </style>
 
         <div class="content">
             {% block content %}

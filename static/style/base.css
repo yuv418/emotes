@@ -1,0 +1,15 @@
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+#sidebar-info {
+	top: 0;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+	background-color: black;
+	color: white;
+	float: left;
+	animation-name: open;
+}
