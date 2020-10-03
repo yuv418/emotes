@@ -7,7 +7,7 @@
   <div id="sidebar-info">
       <img id="sidebar-info__image">
       <h2 id="sidebar-info__title"></h2>
-      <h4 id="sidebar-info__desc"></h4>
+      <a id="sidebar-info__desc"></h4>
   </div>
 
   <div id="emote-list">
@@ -16,17 +16,11 @@
               document.getElementById('sidebar-info').style.width = '300px';
               document.getElementById('sidebar-info__image').src = '/{{ i.slug }}' + '?size=128'
               document.getElementById('sidebar-info__title').innerHTML = '{{ i.name }}';
-              document.getElementById('sidebar-info__desc').innerHTML = '/{{ i.slug }}'
+              document.getElementById('sidebar-info__desc').innerHTML = '{{ domain }}{{ i.slug }}';
+              document.getElementById('sidebar-info__desc').href = '{{ domain }}{{ i.slug }}'
           "/>
       {% endfor %}
   </div>
 </div>
-
-<style>
-  #emote-view {
-      display: flex;
-      flex-direction: row;
-  }
-</style>
 
 {% endblock %}

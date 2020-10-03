@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca&display=swap');
+
+* {
+	font-family: 'Lexend Deca', sans-serif;
+}
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+#sidebar-info {
+	top: 0;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+	background-color: black;
+	color: white;
+	float: left;
+	animation-name: open;
+}
+#sidebar-info__desc {
+	color: white;
+	text-decoration: none;
+}
+#emote-view {
+	display: flex;
+	flex-direction: row;
+}
