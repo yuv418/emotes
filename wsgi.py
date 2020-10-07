@@ -6,6 +6,7 @@ from playhouse.flask_utils import FlaskDB
 from celery import Celery
 from celery.bin import worker
 from dotenv import load_dotenv
+import logging
 import os
 
 load_dotenv(verbose=True, dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".flaskenv"))
@@ -39,7 +40,7 @@ app.config.update(dict(
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
     celery = Celery(app.import_name, backend=app.config["CELERY_RESULT_BACKEND"],
-                  broker=app.config["CELERY_BROKER_URL"])
+                    broker=app.config["CELERY_BROKER_URL"], loglevel=logging.DEBUG)
     celery.conf.update(app.config)
     TaskBase = celery.Task
     class ContextTask(TaskBase):

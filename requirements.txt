@@ -12,5 +12,5 @@ Flask-CORS
 Flask-Caching
 peewee_migrate2
 titlecase
-celery
+celery==5.0.0
 redis
