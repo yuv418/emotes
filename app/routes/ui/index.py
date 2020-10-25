@@ -9,6 +9,7 @@ import math
 @app.route("/")
 def index():
     local_emotes = Emote.local_emotes()
+    print(local_emotes)
     rows = math.floor(math.sqrt(len(local_emotes)))
     domain = app.config["DOMAIN"] or request.url_root
 

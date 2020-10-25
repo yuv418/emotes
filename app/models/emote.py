@@ -40,7 +40,7 @@ class Emote(Model):
                 else:
                     emotes_dict['name'] = titlecase(emotes_dir.replace("-", " "))
 
-                emotes_dict['slug'] = emotes_info_dict['path'].split(".")[0]
+                emotes_dict['slug'] = emotes_dir
                 del emotes_info_dict['path']
 
                 emotes_dict['info'] = emotes_info_dict
