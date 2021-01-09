@@ -75,7 +75,7 @@ def api_namespace(namespace, user):
     if not nmsp:
         return jsonify({"msg": "Namespace not found."}), 404
 
-    nmsp_dict = model_to_dict(nmsp, backrefs=True, exclude=[User.admin, User.api_keys, Emote.path])
+    nmsp_dict = model_to_dict(nmsp, backrefs=True, exclude=[User.admin, User.api_keys])
     return jsonify(nmsp_dict)
 
 @app.route(f"{api_prefix}/namespaces/<path:namespace>", methods=["DELETE"])
