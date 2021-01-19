@@ -15,7 +15,8 @@ def normalize_size(size):
 		size[index] = int(i)
 	return size
 
-@app.route('/<path:namespace>/<emote>') 
+@app.route('/<path:namespace>/<emote>')
+@app.route("/<emote>", subdomain="<namespace>")
 def namespaced_emote(namespace, emote):
 	if emote.endswith(".gif"):
 		emote = emote.split(".gif")[0]
