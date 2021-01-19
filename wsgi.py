@@ -6,6 +6,7 @@ from playhouse.flask_utils import FlaskDB
 from celery import Celery
 from celery.bin import worker
 from dotenv import load_dotenv
+import urllib
 import logging
 import os
 
@@ -14,7 +15,8 @@ load_dotenv(verbose=True, dotenv_path=os.path.join(os.path.dirname(os.path.abspa
 app = Flask(
     __name__,
     template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "app/templates"),
-    static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "app/static")
+    static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "app/static"),
+    subdomain_matching=True
 )
 
 # TODO slack
@@ -35,7 +37,8 @@ app.config.update(dict(
     CELERY_BROKER_URL=os.environ["EMOTES_CELERY_BROKER_URL"],
     CELERY_RESULT_BACKEND=os.environ["EMOTES_CELERY_RESULT_BACKEND"],
     ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp'],
-    DOMAIN = os.environ.get("EMOTES_DOMAIN")
+    DOMAIN = os.environ.get("EMOTES_DOMAIN"),
+    SERVER_NAME=urllib.parse.urlparse(os.environ.get("EMOTES_DOMAIN")).hostname
 ))
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
