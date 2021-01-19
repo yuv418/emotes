@@ -18,6 +18,7 @@ app = Flask(
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), "app/static"),
     subdomain_matching=True
 )
+app.url_map.strict_slashes = False # People using subdomains may find this easier if they inadvertently put a trailing slash (slash regular users as well)
 
 # TODO slack
 app.config.update(dict(
@@ -38,7 +39,7 @@ app.config.update(dict(
     CELERY_RESULT_BACKEND=os.environ["EMOTES_CELERY_RESULT_BACKEND"],
     ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp'],
     DOMAIN = os.environ.get("EMOTES_DOMAIN"),
-    SERVER_NAME=urllib.parse.urlparse(os.environ.get("EMOTES_DOMAIN")).hostname
+    SERVER_NAME=urllib.parse.urlparse(os.environ.get("EMOTES_DOMAIN")).hostname if not app.config["DEBUG"] else None
 ))
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
