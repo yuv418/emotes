@@ -7,7 +7,7 @@ def apikey_required(f):
     def decorated_f(*args, **kwargs):
         if request.values.get('api_key'):
             try:
-                key = ApiKey.get(ApiKey.value == request.values.get('api_key'))
+                key = ApiKey.from_unhash(request.values.get('api_key'))
             except Exception:
                 key = None
 
@@ -26,7 +26,7 @@ def apikey_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated_f(*args, **kwargs):
-        user = ApiKey.get(ApiKey.value == request.values.get('api_key')).user
+        user = ApiKey.from_unhash(request.values.get('api_key')).user
         if user.admin:
             return f(*args, **kwargs)
         return jsonify({"msg": "You are not an admin and as such have insufficient permissions to perform this action."});

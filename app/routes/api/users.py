@@ -81,6 +81,7 @@ def api_get_user(user):
 @admin_required
 def api_user_apikey(id, user):
     api_key = ApiKey(user=User[id])
+    api_key_value = api_key.gen_unhashed_api_key() # Unhashed value
     api_key.save()
-    return jsonify({"key": api_key.value, "user_id": id})
-    
+
+    return jsonify({"key": api_key_value, "user_id": id})
