@@ -23,8 +23,9 @@ def install():
         print("Installer: new admin Administrator saved.")
 
         admin_key = ApiKey(user=new_admin)
+        admin_key_value = admin_key.gen_unhashed_api_key()
         admin_key.save()
-        print(f"Installer: admin's api key is {admin_key.value}.\nKeep this value VERY safely.")
+        print(f"Installer: admin's api key is {admin_key_value}.\nKeep this value VERY safely.")
     else:
         pass
         # print("Installer: admin already created, skipping.")
