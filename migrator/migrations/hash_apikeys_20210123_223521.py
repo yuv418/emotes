@@ -14,4 +14,3 @@ def migration_20210123_223521():
             api_key.value = generate_password_hash(api_key.value)
             api_key.save()
 
-            print(api_key.value)
