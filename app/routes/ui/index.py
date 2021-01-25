@@ -2,6 +2,7 @@ from emotes.wsgi import app, cache
 from emotes.app.emote import EmoteWrapper
 from flask import jsonify, request, send_file, send_from_directory, render_template
 from emotes.app.models import *
+from emotes.app.routes import cheetah
 import os
 import re
 import math
@@ -13,12 +14,4 @@ def index():
     rows = math.floor(math.sqrt(len(local_emotes)))
     domain = app.config["DOMAIN"] or request.url_root
 
-     #return render_template("ui/index.html", local_emotes=local_emotes, domain=domain)
-
-    # import emotes.app.templates
-
-    from emotes.app.templates.ui import index
-    obj = index.index()
-    obj.local_emotes = local_emotes
-    obj.domain = domain
-    return obj.respond()
+    return cheetah("ui.index", local_emotes=local_emotes, domain=domain)
