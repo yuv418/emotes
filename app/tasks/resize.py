@@ -1,4 +1,4 @@
-from emotes.wsgi import celery, app
+from emotes.wsgi import celery, app, db
 from PIL import Image, ImageSequence, ImageFile
 from io import BytesIO
 import secrets
@@ -14,8 +14,15 @@ def resize_image(resized_image_id):
     """"Resizes the emote so it appears similar to a 32x32 discord emoji. Returns a BytesIO"""
     print("Started resize task.")
     from emotes.app.models.image import ResizedImage
+    from peewee import InterfaceError
 
-    resized_image = ResizedImage.select().where(ResizedImage.id == resized_image_id).first()
+    resized_image_query = lambda: ResizedImage.select().where(ResizedImage.id == resized_image_id).first()
+    try:
+        resized_image = resized_image_query()
+    except InterfaceError: # Sometimes celery disconnects from the DB after a long time and then queries fail, so we have to reconnect manually
+        db.database.close()
+        db.database.connect()
+        resized_image = resized_image_query()
 
     if resized_image.image.emote_id:
         image = Image.open(os.path.join(app.config["UPLOADS_PATH"], resized_image.image.original))
