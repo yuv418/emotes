@@ -13,4 +13,12 @@ def index():
     rows = math.floor(math.sqrt(len(local_emotes)))
     domain = app.config["DOMAIN"] or request.url_root
 
-    return render_template("ui/index.html", local_emotes=local_emotes, domain=domain)
+     #return render_template("ui/index.html", local_emotes=local_emotes, domain=domain)
+
+    # import emotes.app.templates
+
+    from emotes.app.templates.ui import index
+    obj = index.index()
+    obj.local_emotes = local_emotes
+    obj.domain = domain
+    return obj.respond()

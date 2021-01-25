@@ -14,3 +14,4 @@ peewee_migrate2
 titlecase
 celery==5.0.0
 redis
+Cheetah3

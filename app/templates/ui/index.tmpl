@@ -1,0 +1,47 @@
+#extends emotes.app.templates.ui.base
+
+#def content
+<h1 style="margin: 0; padding-top: 32px; padding-bottom: 16px;">local emotes</h1>
+<style>
+    @keyframes float {
+        0% {
+            filter: blur(12px);
+        }
+        100% {
+            filter: blur(24px);
+        }
+    }
+    
+    .hasfloat {
+        animation-name: float;
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        animation-timing-function: ease;
+        filter: blur(12px);
+    }
+</style>
+<div id="emote-view">
+    <div id="emote-list" style="margin-bottom: 32px;">
+        #for $index, $i in enumerate($local_emotes)
+            <div
+            class="emotediv"
+            onclick="
+            document.getElementById('sidebar-info').style.width = '300px';
+            document.getElementById('sidebar-info__image').src = '/$i.slug' + '?size=128'
+            document.getElementById('sidebar-info__title').innerHTML = '$i.name';
+            document.getElementById('sidebar-info__desc').innerHTML = '$domain${i.slug}';
+            document.getElementById('sidebar-info__desc').href = '$domain$i.slug'"
+            style="display: inline-block; padding: 32px; border-radius: 8px;">
+                <img class="hoverfancy" style="position: absolute; z-index: 5;" src="/$i.slug"><img class="hasfloat" style="animation-delay: ${index*0.1}s;" src="/$i.slug">
+            </div>
+        #end for
+    </div>
+
+    <div id="sidebar-info" style="margin-left: auto; margin-right: auto;">
+        <img id="sidebar-info__image">
+        <h2 id="sidebar-info__title"></h2>
+        <a id="sidebar-info__desc"></h4>
+    </div>
+</div>
+#end def

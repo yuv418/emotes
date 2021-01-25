@@ -143,3 +143,5 @@ cython_debug/
 # Uploads
 uploads/*
 supervisord.log
+
+app/templates/**/*.py
