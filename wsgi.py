@@ -38,6 +38,7 @@ app.config.update(dict(
         MIGRATIONS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "migrator", "migrations"),
 	TWITCH_CLIENT_ID = os.environ["EMOTES_TWITCH_CLIENT_ID"],
 	API_PREFIX = "/api",
+	UI_PREFIX = "/ui",
 	CACHE_TYPE = "simple",
     CELERY_BROKER_URL=os.environ["EMOTES_CELERY_BROKER_URL"],
     CELERY_RESULT_BACKEND=os.environ["EMOTES_CELERY_RESULT_BACKEND"],
@@ -60,6 +61,15 @@ def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patte
     celery.Task = ContextTask
     return celery
 
+def checksums(file_list):
+    """Return a dict of checksums for a file list"""
+    import hashlib
+
+    checksum_dict = {}
+    for f in file_list:
+        with open(f, 'rb') as o_f:
+            checksum_dict[f] = hashlib.md5(o_f.read()).hexdigest()
+
 def compile_templates():
     """Compile all the Cheetah templates"""
     import copy
@@ -74,9 +84,6 @@ def compile_templates():
                     full_path = os.path.join(dirs, f)
                     extra_files.append(full_path)
                     wrapper.main(argv=["cheetah", "compile", "--nobackup", full_path])
-    if app.debug: # Only hot reload with debug mode, but this doesn't work at the moment. TODO Fix
-        extra_file_env_str = ":".join(extra_files) # If you use flask run, you need to set an environment variable, so we use this
-        os.environ["FLASK_RUN_EXTRA_FILES"] = extra_file_env_str # TODO windows uses semicolons
 
     sys.argv = old_argv
     return extra_files
@@ -89,7 +96,9 @@ celery = make_celery(app)
 celery.conf.update(app.config)
 
 api_prefix = app.config["API_PREFIX"]
-extra_files = compile_templates()
+ui_prefix = app.config["UI_PREFIX"]
+template_list = compile_templates()
+template_checksums = checksums(template_list)
 
 from emotes.app.routes import *
 from emotes.app.models import *
@@ -98,4 +107,4 @@ from emotes.migrator import *
 migrate()
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8000, extra_files=extra_files)
+    app.run(host='127.0.0.1', port=8000)
