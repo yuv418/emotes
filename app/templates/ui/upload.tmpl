@@ -1,8 +1,15 @@
+#from flask import url_for
+
 #extends emotes.app.templates.ui.base
 
 #def content
 
 <h1 style="margin: 0; padding-top: 32px; padding-bottom: 16px;">upload emotes</h1>
 
-hi
+<form method="POST" action="${url_for('ui_emotes_upload')}">
+    <input name="file" type="file"><br><br>
+    <input name="namespace"><br><br>
+    <input type="submit" value="Upload">
+</form>
+
 #end def
