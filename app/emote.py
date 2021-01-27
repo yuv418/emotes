@@ -12,11 +12,12 @@ class EmoteWrapper():
     
     API_PROVIDERS = ["discord", "twitch"]
 
-    def __init__(self, namespace, emote, width, height):
+    def __init__(self, namespace, emote, width, height, tg=False):
         self.namespace = namespace
         self.emote = emote
         self.width = width
         self.height = height
+        self.tg = tg
 
 
     def fetch(self):
@@ -146,7 +147,7 @@ class EmoteWrapper():
 
                 try:
                     image = Image.select().where(Image.original == emote_path).get()
-                    resized_image = image.size(self.width, self.height)
+                    resized_image = image.size(self.width, self.height, webp=self.tg)
                     print(f"The original image is {image.original}")
                     if resized_image.processed:
                         with open(os.path.join(app.config["UPLOADS_PATH"], resized_image.path), 'rb') as emote_img_f:
@@ -163,7 +164,7 @@ class EmoteWrapper():
                     image = Image(original=emote_path)
                     image.save()
 
-                    resized_image = image.size(self.width, self.height)
+                    resized_image = image.size(self.width, self.height, webp=self.tg)
 
                     print("Here at image.doesnotexist")
                     if resized_image.processed:
@@ -176,7 +177,7 @@ class EmoteWrapper():
                         else:
                             emote_type = 'png'
 
-                        return (emote_file, emote_type)
+                        return (emote_file, emote_type if not resized_image.webp else 'webp')
 
                     return 'processing'
 
@@ -190,11 +191,11 @@ class EmoteWrapper():
         if not emote:
             return None
 
-        emote_resize = emote.image.size(self.width, self.height)
+        emote_resize = emote.image.size(self.width, self.height, webp=self.tg)
         if emote_resize.processed: # We want to return something like a "msg": "Image processing." if the image hasn't processed yet.
             with open(os.path.join(app.config["UPLOADS_PATH"], emote_resize.path), 'rb') as emote_img_f:
                 emote_file = BytesIO(emote_img_f.read())
 
-            return (emote_file, emote.info['type'])
+            return (emote_file, emote.info['type'] if not emote_resize.webp else "webp")
 
         return 'processing'

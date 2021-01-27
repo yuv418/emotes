@@ -15,3 +15,4 @@ titlecase
 celery==5.0.0
 redis
 Cheetah3
+wand

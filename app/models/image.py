@@ -45,15 +45,16 @@ class Image(Model):
             return new_image
 
 
-    def size(self, width, height):
-        """Returns a processed ResizedImage of the size requested. If the image doesn't exist, this will create it, and return an unprocessed ResizedImage."""
+    def size(self, width, height, webp=False):
+        """Returns a processed ResizedImage of the size requested. If the image doesn't exist, this will create it, and return an unprocessed ResizedImage.
+        If webp=True, then it will generate a webp for this size."""
 
-        print(f"Size method for image for {width}x{height}")
+        print(f"Size method for image for {width}x{height} with webp {webp}")
 
-        resized_image = ResizedImage.select().where(ResizedImage.width == width and ResizedImage.height == height).where(ResizedImage.image == self).first()
+        resized_image = ResizedImage.select().where((ResizedImage.width == width) & (ResizedImage.height == height) & (ResizedImage.webp == webp) & (ResizedImage.image == self)).first()
         type = 'emote'
 
-        if not self.emote_id:
+        if not self.emote_id: # This is a local emote
             dirname = os.path.dirname(self.original)
             info_path = os.path.join(dirname, "info.json")
 
@@ -69,26 +70,26 @@ class Image(Model):
             if not resized_image.processed:
                 if not self.emote_id:
                     if type == 'emote':
-                        resize_image(resized_image.id)
+                        resize_image(resized_image.id, webp)
                         return resized_image
 
-                resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face
+                resize_image.apply_async(args=[resized_image.id, webp], countdown=0) # sad face
                 return resized_image
 
             return resized_image
 
-        resized_image = ResizedImage(width=width, height=height, image=self)
+        resized_image = ResizedImage(width=width, height=height, image=self, webp=webp)
         resized_image.save()
 
         if not self.emote_id:
             if type == 'emote': # If this is an emote, we can resize it if it hasn't been resized synchronously since there won't be a significant performance impact.
 
-                task = resize_image(resized_image.id)
+                task = resize_image(resized_image.id, webp)
                 resized_image = ResizedImage.get(ResizedImage.id == resized_image.id) # Reload model so changes and updates are reflected.
 
                 return resized_image
 
-        task = resize_image.apply_async(args=[resized_image.id], countdown=0) # sad face
+        task = resize_image.apply_async(args=[resized_image.id, webp], countdown=0) # sad face
 
         return resized_image
 
@@ -102,6 +103,7 @@ def autosize(model, new_image, created):
     new_image.size(64, 64)
     new_image.size(128, 128)
     new_image.size(256, 256)
+    new_image.size(256, 256, webp=True)
 
 
 
@@ -123,6 +125,7 @@ class ResizedImage(Model):
     width = IntegerField()
     height = IntegerField()
     processed = BooleanField(default=False)
+    webp = BooleanField(default=False) # These are TELEGRAM webps -- meaning all of them are 512x512 wrapped.
 
     image = ForeignKeyField(Image, backref='resized_images')
 

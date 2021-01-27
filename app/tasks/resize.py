@@ -10,7 +10,7 @@ alphanumeric = string.ascii_letters + string.digits
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 @celery.task()
-def resize_image(resized_image_id):
+def resize_image(resized_image_id, webp):
     """"Resizes the emote so it appears similar to a 32x32 discord emoji. Returns a BytesIO"""
     print("Started resize task.")
     from emotes.app.models.image import ResizedImage
@@ -29,7 +29,7 @@ def resize_image(resized_image_id):
     else:
         image = Image.open(resized_image.image.original)
 
-    file_ext = resized_image.image.original.rsplit(".", 1)[1]
+    file_ext = resized_image.image.original.rsplit(".", 1)[1] if not webp else 'webp'
     emote_type = ''
     emote_name = ''
 
@@ -68,9 +68,19 @@ def resize_image(resized_image_id):
     resize_height = height/ image.height
     resize_value = min(resize_width, resize_height)
     def __emote():
-        image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.HAMMING)
 
-        image_resized.save(outfile_path, format='PNG', quality=100)
+        image_resized = image.resize((int(resize_value * image.width), int(resize_value * image.height)), resample=Image.HAMMING)
+        image_resized.save(outfile_path, format='PNG' if not webp else 'WEBP', quality=100)
+
+        # Laziness, rewrite webp with composition in place.
+
+        if webp:
+            import os
+            from wand import image as wandimg
+            with wandimg.Image(filename=outfile_path) as img_precomposite:
+                img_comp = wandimg.Image(width=512, height=512)
+                img_comp.composite(img_precomposite, gravity='center')
+                img_comp.save(filename=outfile_path)
 
     def __aemote():
         # Rules to start a new image processing task:
@@ -93,8 +103,10 @@ def resize_image(resized_image_id):
     }
     func = switch.get(emote_type, lambda: "Cannot find type")
     func()
+    print("here")
 
     resized_image.path = outfile_name
     resized_image.processed = True
+    resized_image.webp = webp
 
     resized_image.save()
