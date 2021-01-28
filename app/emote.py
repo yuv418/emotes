@@ -158,7 +158,7 @@ class EmoteWrapper():
                             emote_type = 'gif'
                         else:
                             emote_type = 'png'
-                        return (emote_file, emote_type)
+                        return (emote_file, emote_type if not resized_image.webp else 'webp')
 
                 except Image.DoesNotExist:
                     image = Image(original=emote_path)
@@ -176,7 +176,6 @@ class EmoteWrapper():
                             emote_type = 'gif'
                         else:
                             emote_type = 'png'
-
                         return (emote_file, emote_type if not resized_image.webp else 'webp')
 
                     return 'processing'
@@ -195,7 +194,6 @@ class EmoteWrapper():
         if emote_resize.processed: # We want to return something like a "msg": "Image processing." if the image hasn't processed yet.
             with open(os.path.join(app.config["UPLOADS_PATH"], emote_resize.path), 'rb') as emote_img_f:
                 emote_file = BytesIO(emote_img_f.read())
-
             return (emote_file, emote.info['type'] if not emote_resize.webp else "webp")
 
         return 'processing'
