@@ -8,7 +8,9 @@ def migration_20210129_135137():
     print("Here")
 
     try:
-        global_nmsp = Namespace(name="Global", slug="")
+        admin = User.find(User.admin == 1).first()
+
+        global_nmsp = Namespace(name="Global", slug="", user_id=admin.id)
         global_nmsp.save()
 
         # Link emotes to namespace
