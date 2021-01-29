@@ -128,6 +128,7 @@ class ResizedImage(Model):
     webp = BooleanField(default=False) # These are TELEGRAM webps -- meaning all of them are 512x512 wrapped.
 
     image = ForeignKeyField(Image, backref='resized_images')
+    tg_file_id = TextField(default="")
 
     class Meta:
         database = db.database

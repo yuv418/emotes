@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, url_for
 from flask_cors import CORS
 from flask_caching import Cache
 from peewee import *
@@ -8,6 +8,7 @@ from celery.bin import worker
 from dotenv import load_dotenv
 from Cheetah.Template import Template
 from Cheetah.CheetahWrapper import CheetahWrapper
+from telegram.ext import Updater
 import urllib
 import logging
 import os
@@ -44,7 +45,9 @@ app.config.update(dict(
     CELERY_RESULT_BACKEND=os.environ["EMOTES_CELERY_RESULT_BACKEND"],
     ALLOWED_EXT = ['gif', 'png', 'jpeg', 'jpg', 'webp'],
     DOMAIN = os.environ.get("EMOTES_DOMAIN"),
-    SERVER_NAME=urllib.parse.urlparse(os.environ.get("EMOTES_DOMAIN")).hostname if not app.config["DEBUG"] else None
+    SERVER_NAME=urllib.parse.urlparse(os.environ.get("EMOTES_DOMAIN")).hostname if not app.config["DEBUG"] else None,
+    TG_KEY=os.environ["EMOTES_TG_KEY"],
+    TG_USERID=os.environ["EMOTES_TG_USERID"]
 ))
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
@@ -92,6 +95,8 @@ def compile_templates():
 CORS(app)
 db = FlaskDB(app)
 cache = Cache(app)
+tg = Updater(app.config["TG_KEY"], use_context=True)
+
 celery = make_celery(app)
 celery.conf.update(app.config)
 
@@ -103,6 +108,8 @@ template_checksums = checksums(template_list)
 from emotes.app.routes import *
 from emotes.app.models import *
 from emotes.migrator import *
+
+tg.bot.set_webhook((os.environ["EMOTES_TG_DEV_WEBHOOK"] if app.debug else app.config["SERVER_NAME"]) + "/api/tg")
 
 migrate()
 

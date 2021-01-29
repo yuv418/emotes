@@ -32,3 +32,4 @@ def cheetah(module, **data):
 from emotes.app.routes.ui import *
 from emotes.app.routes.api import *
 from emotes.app.routes.show import *
+from emotes.app.routes.tg import *
