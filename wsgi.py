@@ -47,7 +47,6 @@ app.config.update(dict(
     DOMAIN = os.environ.get("EMOTES_DOMAIN"),
     SERVER_NAME=urllib.parse.urlparse(os.environ.get("EMOTES_DOMAIN")).hostname if not app.config["DEBUG"] else None,
     TG_KEY=os.environ["EMOTES_TG_KEY"],
-    TG_USERID=os.environ["EMOTES_TG_USERID"]
 ))
 
 def make_celery(app): # Thanks https://flask.palletsprojects.com/en/0.12.x/patterns/celery/
@@ -109,7 +108,7 @@ from emotes.app.routes import *
 from emotes.app.models import *
 from emotes.migrator import *
 
-tg.bot.set_webhook((os.environ["EMOTES_TG_DEV_WEBHOOK"] if app.debug else app.config["SERVER_NAME"]) + "/api/tg")
+tg.bot.set_webhook((os.environ["EMOTES_TG_DEV_WEBHOOK"] if app.debug else "https://" + app.config["SERVER_NAME"]) + "/api/tg")
 
 migrate()
 
