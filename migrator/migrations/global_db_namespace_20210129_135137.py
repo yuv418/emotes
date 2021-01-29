@@ -6,6 +6,7 @@ from playhouse.migrate import *
 def migration_20210129_135137():
     """Put your migration here."""
     print("Here")
+
     try:
         global_nmsp = Namespace(name="Global", slug="")
         global_nmsp.save()

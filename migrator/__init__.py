@@ -39,14 +39,9 @@ def migrate():
 
     for index, i in enumerate(migrations_dict):
         if version.version < i[0]:
-            print("Migrations were found. Migrating DB...")
+            print(f"Migrations were found. Executing migration from {i[0].strftime('%Y-%m-%d %H:%M:%S')}...")
             index_begin = index
 
-    if index_begin > -1:
-        migrations_to_apply = migrations_dict[index_begin:]
-
-        for date, migration in migrations_to_apply:
-            migration()
-
-        version.version = migrations_dict[-1][0]
-        version.save()
+            i[1]()
+            version.version = i[0]
+            version.save()

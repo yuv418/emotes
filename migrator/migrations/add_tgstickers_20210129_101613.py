@@ -8,6 +8,8 @@ from uuid import uuid4
 @migration("20210129_101613")
 def migration_20210129_101613():
     """Put your migration here."""
+    print("Add TG STICKER PACK NAME")
+
     migrate(
         migrator.add_column("namespace", "tg_stickerpack_name", TextField(default=""))
     )
