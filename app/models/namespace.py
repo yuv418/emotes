@@ -33,6 +33,9 @@ class Namespace(Model):
             path = path[:-1]
         namespaces = path.split("/")
         nmsp = Namespace.select().where(Namespace.slug == namespaces[0]).first()
+        if not nmsp:
+            return None
+
         for nmsp_str in namespaces[1:]:
             nmsp_new = nmsp.children.select().where(Namespace.slug == nmsp_str).first()
             if not nmsp_new:
