@@ -203,6 +203,26 @@ Each element has all the information you'll need for each emote, like its name, 
 <6> This is the slug. You can use this in conjuction with the emote slug to construct a path.
 <7> This is user information. This is **not all the user information you can get.** Please use `GET /api/users` to get more information about a user from their `id`.
 
+=== Deleting Namespaces
+
+
+[source]
+----
+DELETE /api/namespaces/<namespace path>
+
+api_key: <1>
+----
+<1> This is your API key, as usual. As long as you have an API key and a valid namespace slug, you can get information about it.
+
+This action returns a JSON response like this:
+
+[source]
+----
+{
+   "msg": "Namespace deleted successfully."
+}
+----
+
 == Emote Actions
 
 NOTE: When you fetch a namespace, you also get a list of emotes in that namespace. As such, there is no way to directly **view** a list of emotes through an emote-specific action.

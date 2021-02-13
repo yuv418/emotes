@@ -88,3 +88,6 @@ def api_delete_namespace(namespace, user):
     if user != nmsp.user:
         if not user.admin:
             return jsonify({"msg": "You do not have sufficient permissions to do this."}), 403
+
+    nmsp.delete_instance(recursive=True)
+    return jsonify({"msg": "Namespace deleted successfully."})
