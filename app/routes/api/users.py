@@ -76,12 +76,32 @@ def api_get_user(user):
     return jsonify(model_to_dict(d_user, backrefs=True, only=allowed))
 
 # APIKEY
-@app.route(f"{api_prefix}/users/<id>/api_key", methods=["POST"])
+@app.route(f"{api_prefix}/users/<int:id>/api_key", methods=["POST"])
 @apikey_required
 @admin_required
-def api_user_apikey(id, user):
-    api_key = ApiKey(user=User[id])
+def api_user_apikey_by_id(id, user):
+    return gen_apikey(User[id])
+
+@app.route(f"{api_prefix}/users/<name>/api_key", methods=["POST"])
+@apikey_required
+@admin_required
+def api_user_apikey_by_username(name, user):
+    try:
+        user = User.get(User.name == name)
+    except Exception: # UserDoesNotExist?
+        return jsonify({"msg": "The user you are trying to create an API key for does not exist."})
+
+    return gen_apikey(user)
+
+# TODO allow users to generate their own API keys
+def gen_apikey(user):
+    """
+    User: User object
+    returns ApiKey.
+    """
+
+    api_key = ApiKey(user=user)
     api_key_value = api_key.gen_unhashed_api_key() # Unhashed value
     api_key.save()
 
-    return jsonify({"key": api_key_value, "user_id": id})
+    return jsonify({"key": api_key_value, "user_id": user.id})
