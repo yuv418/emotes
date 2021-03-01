@@ -4,6 +4,7 @@ class CreateEmotes < ActiveRecord::Migration[6.1]
       t.string :name
       t.integer :emote_type
       t.string :slug
+      t.references :namespace, null: false, foreign_key: true
 
       t.timestamps
     end

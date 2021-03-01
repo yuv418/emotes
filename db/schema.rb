@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_01_131257) do
+ActiveRecord::Schema.define(version: 2021_03_01_190323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,14 +43,50 @@ ActiveRecord::Schema.define(version: 2021_03_01_131257) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "api_keys", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
+    t.string "key_digest"
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
   create_table "emotes", force: :cascade do |t|
     t.string "name"
     t.integer "emote_type"
     t.string "slug"
+    t.bigint "namespace_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["namespace_id"], name: "index_emotes_on_namespace_id"
+  end
+
+  create_table "namespaces", force: :cascade do |t|
+    t.string "slug"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "namespaces_users", force: :cascade do |t|
+    t.bigint "namespace_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["namespace_id"], name: "index_namespaces_users_on_namespace_id"
+    t.index ["user_id"], name: "index_namespaces_users_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.boolean "admin", default: false
+    t.string "username"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "api_keys", "users"
+  add_foreign_key "emotes", "namespaces"
+  add_foreign_key "namespaces_users", "namespaces"
+  add_foreign_key "namespaces_users", "users"
 end
