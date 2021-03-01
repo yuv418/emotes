@@ -1,4 +1,4 @@
-=== Emotes on Rails
+= Emotes on Rails
 
 I got tired of the horror show known as Flask and Peewee, so I decided to rewrite the entirety of Emotes in Rails.
 
