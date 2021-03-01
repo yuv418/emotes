@@ -1,12 +1,14 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
+  get ':namespace_slug/:emote_slug', to: 'emote_display#show'
+  get ':emote_slug', to: 'emote_display#show'
 
   namespace :api, defaults: { format: :json } do
 
-    get :namespaces, to: 'namespaces#show'
-    resources :namespaces, except: [:show, :create] do
-      resources :emotes
+    resource :namespace, except: [:create]
+    resources :namespaces, except: [:create], param: :slug do
+      resources :emotes, param: :slug
     end
 
     delete :users, to: 'users#destroy'

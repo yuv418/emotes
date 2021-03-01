@@ -31,3 +31,10 @@
 
 en:
   hello: "Hello world"
+  activerecord:
+    errors:
+      models:
+        namespace:
+          attributes:
+            base:
+              cannot_delete_global: "You cannot delete the global namespace."

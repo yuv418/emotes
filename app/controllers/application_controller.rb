@@ -35,4 +35,7 @@ class ApplicationController < ActionController::API
     params.permit(:id, :username)
   end
 
+  def find_namespace_params(iparams)
+  end
+
 end
