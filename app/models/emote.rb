@@ -1,0 +1,2 @@
+class Emote < ApplicationRecord
+end
