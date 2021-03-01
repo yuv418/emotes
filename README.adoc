@@ -1,0 +1,19 @@
+=== Emotes on Rails
+
+I got tired of the horror show known as Flask and Peewee, so I decided to rewrite the entirety of Emotes in Rails.
+
+There were a number of issues that I might've been able to avoid with Flask but I didn't.
+
+1. Peewee, while being less complex than SQLAlchemy, doesn't have a migrator. Which meant that I had to write my own, and it was terrible. It barely worked, and while I could have just fixed it, it would have never been up there with something that people actually maintain.
+
+2. More Peewee errors, glitches, and bugs (eg. you **always** get a 500 error when you first start the site up). I probably could have added more plugins to Flask for file-uploads so that it didn't have to be this, but then the database would've probably broken more because of my bad migrator, and I'd have to spend 5 hours trying to fix it.
+
+3. At this point, maintaining Emotes was becoming a nightmare and a headache, and I also wanted to write a web UI for Emotes at some point, which seemed daunting and problematic.
+
+4. The Flask code, while not being a mess, is full of things that Rails can take care of me without my having to explicitly deal with them (eg. validations, JSON, importing DB hooks, and all that stuff).
+
+5. Again, I could've just switched to SQLAlchemy, but I honestly think it would've taken longer to somehow patch the Peewee code out than to just rewrite the entire thing in Rails. And since I wrote this in less than a day and it provides most of the functionality of the current Emotes (minus Telegram and GIFs [the latter of which Emotes can barely handle anyway]), I'd call this a success. Furthermore, ActiveRecord is much easier to deal with so it shouldn't be too hard to implement more and more in the future.
+
+So I rewrote Emotes in Ruby on Rails!
+
+You'll find a new `API.adoc` coming out soon, so stay tuned!
