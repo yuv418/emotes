@@ -1,37 +1,90 @@
-with import <nixpkgs> {};
+{ config, lib, pkgs, ... }:
 
 let
-  gems = bundlerEnv {
-    name = "emotes";
-    inherit ruby;
-    gemdir  = ./.;
+  cfg = config.services.emotes;
+in with lib; {
+  options = {
+    services.emotes = {
+      enable = mkEnableOption "Emotes on Rails";
 
-    # Stolen from https://github.com/emptyflask/rails-nix/blob/master/nix/rubyenv.nix
-    gemConfig.pg = attrs: {
-      buildInputs = [ postgresql ];
-    };
+      user = mkOption {
+        type = types.str;
+        default = "emotes";
+        description = "User to run service as";
+      };
+      dir = mkOption {
+        type = types.str;
+        default = "/var/emotes";
+        description = "Data directory";
+      };
 
-    gemConfig.sqlite3 = attrs: {
-      buildInputs = [ sqlite ];
-    };
-
-    gemConfig.nokogiri = attrs: {
-      buildInputs = [ libiconv zlib ];
-    };
-
-    gemConfig.sassc = attrs: {
-      buildInputs = [ libsass ];
-      shellHook = ''
-        export SASS_LIBSASS_PATH=${libsass}
-      '';
+      db = {
+        user = mkOption {
+          type = types.str;
+          default = "emotes";
+          description = "DB user";
+        };
+        password = mkOption {
+          type = types.str;
+          default = "";
+          description = "DB password";
+        };
+        name = mkOption {
+          type = types.str;
+          default = "emotes";
+          description = "Name of DB";
+        };
+        host = mkOption {
+          type = types.str;
+          default = "localhost";
+          description = "Emotes DB location";
+        };
+      };
     };
   };
-in stdenv.mkDerivation {
-  name = "emotes";
-  src = ./.;
-  buildInputs = [gems ruby];
-  installPhase = ''
-    mkdir -p $out
-    cp -r $src $out
-  '';
+
+  config = mkIf (cfg.enable) {
+
+      services.mysql = {
+        enable = true;
+        package = pkgs.mariadb;
+        ensureUsers = [
+          {
+            name = cfg.db.user;
+            ensurePermissions = {
+              "${cfg.db.name}.*" = "select, lock tables";
+            };
+          }
+        ];
+      };
+
+      systemd.services = with pkgs; let
+        bundle = "${pkgs.bundler}/bin/";
+        emotes = import ./build.nix;
+
+        sharedCfg = {
+          enable = true;
+          wantedBy = [ "multi-user.target" ];
+          after = [ "networking.service" "mysql.service" ];
+          environment = let
+            auth = if cfg.db.password != "" then "${cfg.db.username}:${cfg.db.password}@" else "";
+          in {
+            EMOTES_DBSTRING = "mysql://${auth}${cfg.db.host}/${cfg.db.name}";
+            EMOTES_DATA = cfg.dir;
+            RAILS_ENV = "production";
+          };
+          serviceConfig.WorkingDirectory = emotes;
+        };
+      in {
+        emotes-setup = {
+          before = [ "emotes" ];
+
+          script = "bin/setup";
+        } // sharedCfg;
+
+        emotes = {
+          script = "bin/start";
+        } // sharedCfg;
+      };
+  };
 }

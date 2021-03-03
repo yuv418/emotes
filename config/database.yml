@@ -21,4 +21,8 @@ test:
 
 production:
   <<: *default
+  <% if ENV["EMOTES_DBSTRING"] %>
+  url: <%= ENV.fetch("EMOTES_DBSTRING") || "sqlite3:" %>
+  <% else %>
   database: db/production.sqlite3
+  <% end %>

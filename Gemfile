@@ -60,4 +60,5 @@ gem "irb", "~> 1.3"
 
 gem "jwt", "~> 2.2"
 
+gem "rake"
 gem "image_processing", "~> 1.12"
