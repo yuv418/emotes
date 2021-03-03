@@ -45,18 +45,37 @@ in with lib; {
 
   config = mkIf (cfg.enable) {
 
-      services.mysql = {
-        enable = true;
-        package = pkgs.mariadb;
-        ensureUsers = [
-          {
-            name = cfg.db.user;
-            ensurePermissions = {
-              "${cfg.db.name}.*" = "select, lock tables";
-            };
-          }
-        ];
+    services.mysql = {
+      enable = true;
+      package = pkgs.mariadb;
+      ensureUsers = [
+        {
+          name = cfg.db.user;
+          ensurePermissions = {
+            "${cfg.db.name}.*" = "select, lock tables";
+          };
+        }
+      ];
+    };
+
+    virtualisation.oci-containers = { # Don't bother buliding it with Nix, haha.
+      containers.emotes = {
+        imageFile = pkgs.dockerTools.buildImage {
+          fromImageName = "ruby";
+          fromImageTag = "2.7.2-alpine3.12";
+
+          name = "emotes";
+          runAsRoot = ''
+          apk add mysql-client
+          '';
+        };
+        image = "emotes"
+        autoStart = true;
+        extraOptions = [ "--network=host" ];
+        };
       };
+    };
+    /*
 
       systemd.services = with pkgs; let
         bundle = "${pkgs.bundler}/bin/";
@@ -85,6 +104,5 @@ in with lib; {
         emotes = {
           script = "bin/start";
         } // sharedCfg;
-      };
-  };
+      };*/
 }
