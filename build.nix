@@ -27,8 +27,9 @@ let
     };
 
     gemConfig.mysql2 = attrs: {
-      buildInputs = [ mysql ];
+      buildInputs = [ libmysqlclient.dev ];
     };
+    groups = [ "default" "development" "test" ];
   };
 in stdenv.mkDerivation {
   name = "emotes";

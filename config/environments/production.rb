@@ -3,6 +3,9 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  if ENV["RAILS_PROD_LOGFILE"].present?
+    Rails.logger = Logger.new File.open(ENV["RAILS_PROD_LOGFILE"], 'a')
+  end
   # Code is not reloaded between requests.
   config.cache_classes = true
 

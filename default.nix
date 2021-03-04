@@ -12,6 +12,12 @@ in with lib; {
         default = "emotes";
         description = "User to run service as";
       };
+      group = mkOption {
+	type = types.str;
+	default = "emotes";
+	description = "Emotes group";
+      };
+
       dir = mkOption {
         type = types.str;
         default = "/var/emotes";
@@ -45,9 +51,20 @@ in with lib; {
 
   config = mkIf (cfg.enable) {
 
+    users.users = optionalAttrs (cfg.user == "emotes") {
+      emotes = {
+        group = cfg.group;
+        home = cfg.dir;
+      };
+    };
+    users.groups = optionalAttrs (cfg.group == "emotes") {
+      emotes = {};
+    };
+
       services.mysql = {
         enable = true;
         package = pkgs.mariadb;
+        ensureDatabases = [ cfg.db.name ];
         ensureUsers = [
           {
             name = cfg.db.user;
@@ -57,6 +74,12 @@ in with lib; {
           }
         ];
       };
+
+      systemd.tmpfiles.rules = [
+        "d '${cfg.dir}' 0750 ${cfg.user} ${cfg.group} - -"
+        "d '${cfg.dir}/cache' 0750 ${cfg.user} ${cfg.group} - -"
+        "d '${cfg.dir}/log' 0750 ${cfg.user} ${cfg.group} - -"
+      ];
 
       systemd.services = with pkgs; let
         emotes = import ./build.nix;
@@ -69,17 +92,20 @@ in with lib; {
           environment = let
             auth = if cfg.db.password != "" then "${cfg.db.username}:${cfg.db.password}@" else "";
           in {
-            EMOTES_DBSTRING = "mysql://${auth}${cfg.db.host}/${cfg.db.name}";
+            EMOTES_DBSTRING = "mysql2://${auth}${cfg.db.host}/${cfg.db.name}";
             EMOTES_DATA = cfg.dir;
+            RAILS_CACHE = "${cfg.dir}/cache";
             RAILS_ENV = "production";
+	    PIDFILE = "${cfg.dir}/emotes.pid";
+            NIXOS="1";
+            RAILS_PROD_LOGFILE = "${cfg.dir}/log/production.log";
           };
           serviceConfig.WorkingDirectory = emotes;
         };
       in {
         emotes-setup = {
           before = [ "emotes" ];
-
-          script = "${bundle} exec db:migrate";
+          script = "${bundle} exec rails db:migrate";
         } // sharedCfg;
 
         emotes = {
