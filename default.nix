@@ -79,6 +79,7 @@ in with lib; {
         "d '${cfg.dir}' 0750 ${cfg.user} ${cfg.group} - -"
         "d '${cfg.dir}/cache' 0750 ${cfg.user} ${cfg.group} - -"
         "d '${cfg.dir}/log' 0750 ${cfg.user} ${cfg.group} - -"
+        "d '${cfg.dir}/data' 0750 ${cfg.user} ${cfg.group} - -"
       ];
 
       systemd.services = with pkgs; let
@@ -93,7 +94,7 @@ in with lib; {
             auth = if cfg.db.password != "" then "${cfg.db.username}:${cfg.db.password}@" else "";
           in {
             EMOTES_DBSTRING = "mysql2://${auth}${cfg.db.host}/${cfg.db.name}";
-            EMOTES_DATA = cfg.dir;
+            EMOTES_DATA = "${cfg.dir}/data";
             RAILS_CACHE = "${cfg.dir}/cache";
             RAILS_ENV = "production";
 	    PIDFILE = "${cfg.dir}/emotes.pid";
