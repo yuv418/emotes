@@ -45,41 +45,22 @@ in with lib; {
 
   config = mkIf (cfg.enable) {
 
-    services.mysql = {
-      enable = true;
-      package = pkgs.mariadb;
-      ensureUsers = [
-        {
-          name = cfg.db.user;
-          ensurePermissions = {
-            "${cfg.db.name}.*" = "select, lock tables";
-          };
-        }
-      ];
-    };
-
-    virtualisation.oci-containers = { # Don't bother buliding it with Nix, haha.
-      containers.emotes = {
-        imageFile = pkgs.dockerTools.buildImage {
-          fromImageName = "ruby";
-          fromImageTag = "2.7.2-alpine3.12";
-
-          name = "emotes";
-          runAsRoot = ''
-          apk add mysql-client
-          '';
-        };
-        image = "emotes"
-        autoStart = true;
-        extraOptions = [ "--network=host" ];
-        };
+      services.mysql = {
+        enable = true;
+        package = pkgs.mariadb;
+        ensureUsers = [
+          {
+            name = cfg.db.user;
+            ensurePermissions = {
+              "${cfg.db.name}.*" = "select, lock tables";
+            };
+          }
+        ];
       };
-    };
-    /*
 
       systemd.services = with pkgs; let
-        bundle = "${pkgs.bundler}/bin/";
         emotes = import ./build.nix;
+        bundle = "${emotes}/bin/bundle";
 
         sharedCfg = {
           enable = true;
@@ -98,11 +79,12 @@ in with lib; {
         emotes-setup = {
           before = [ "emotes" ];
 
-          script = "bin/setup";
+          script = "${bundle} exec db:migrate";
         } // sharedCfg;
 
         emotes = {
-          script = "bin/start";
+          script = "${bundle} exec rails server";
         } // sharedCfg;
-      };*/
+      };
+  };
 }

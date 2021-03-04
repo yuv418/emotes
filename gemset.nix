@@ -440,15 +440,25 @@
     };
     version = "1.4.2";
   };
+  mysql2 = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0d14pcy5m4hjig0zdxnl9in5f4izszc7v9zcczf2gyi5kiyxk8jw";
+      type = "gem";
+    };
+    version = "0.5.3";
+  };
   nio4r = {
     groups = ["default"];
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "0xbrmq1pvmszrwf40lzwmf8krs2b56720i7wsz9gh274qljkzklf";
+      sha256 = "00fwz0qq7agd2xkdz02i8li236qvwhma3p0jdn5bdvc21b7ydzd5";
       type = "gem";
     };
-    version = "2.5.5";
+    version = "2.5.7";
   };
   nokogiri = {
     dependencies = ["mini_portile2" "racc"];
@@ -487,10 +497,10 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "10kj484ppkjdg1j8jac4bxdv1082bd6g6xhrj70chlp7lkgl8ggh";
+      sha256 = "0wiprd0v4mjqv5p1vqaidr9ci2xm08lcxdz1k50mb1b6nrw6r74k";
       type = "gem";
     };
-    version = "5.2.1";
+    version = "5.2.2";
   };
   racc = {
     groups = ["default" "development" "test"];
@@ -711,10 +721,10 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "0wv3g25dlbjy44bmzznhsik15x9ji23flfg6y4vs4ifv888zryk6";
+      sha256 = "1dlp97vg95plrsaaqj7x8l7z9vsjbhnqk4rw1l30gy26lmxpfrih";
       type = "gem";
     };
-    version = "2.3.1";
+    version = "3.0.0";
   };
   spring = {
     groups = ["development"];

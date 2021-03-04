@@ -2,11 +2,11 @@
 
 {
   imports = [
-    #./.
+    ./.
   ];
 
   virtualisation.docker.enable = true;
-  #services.emotes = {
-    #enable = true;
-  #};
+  services.emotes = {
+    enable = true;
+  };
 }
