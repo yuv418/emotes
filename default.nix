@@ -109,6 +109,7 @@ in with lib; {
 	'';
       in {
         emotes = {
+          path = [ pkgs.imagemagick ];
           preStart =''
               if [ ! -f ${cfg.dir}/key ]; then
                 echo `${bundle} exec rake secret` > ${cfg.dir}/key
