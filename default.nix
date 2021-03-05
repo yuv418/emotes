@@ -98,17 +98,30 @@ in with lib; {
 	    PIDFILE = "${cfg.dir}/emotes.pid";
             NIXOS="1";
             RAILS_PROD_LOGFILE = "${cfg.dir}/log/production.log";
+
           };
           serviceConfig.WorkingDirectory = emotes;
         };
+	envBefore = ''
+	    export SECRET_KEY_BASE="`cat ${cfg.dir}/key`";
+	'';
       in {
         emotes-setup = {
           before = [ "emotes" ];
-          script = "${bundle} exec rails db:migrate";
+          script = ''
+
+	  if [ ! -f ${cfg.dir}/key ]; then
+	    echo `${bundle} exec rake secret` > ${cfg.dir}/key
+	  fi
+
+	  ${envBefore}
+	  echo $RAILS_MASTER_KEY;
+	  ${bundle} exec rails db:migrate;
+	  '';
         } // sharedCfg;
 
         emotes = {
-          script = "${bundle} exec rails server";
+          script = "${envBefore} ${bundle} exec rails server";
         } // sharedCfg;
       };
   };
