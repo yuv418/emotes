@@ -62,8 +62,6 @@ in with lib; {
     };
 
       services.mysql = {
-        enable = true;
-        package = pkgs.mariadb;
         ensureDatabases = [ cfg.db.name ];
         ensureUsers = [
           {
