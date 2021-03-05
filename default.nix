@@ -78,6 +78,7 @@ in with lib; {
         "d '${cfg.dir}/cache' 0750 ${cfg.user} ${cfg.group} - -"
         "d '${cfg.dir}/log' 0750 ${cfg.user} ${cfg.group} - -"
         "d '${cfg.dir}/data' 0750 ${cfg.user} ${cfg.group} - -"
+        "d '${cfg.dir}/tmp' 0750 ${cfg.user} ${cfg.group} - -"
       ];
 
       systemd.services = with pkgs; let
