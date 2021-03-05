@@ -68,6 +68,9 @@ in with lib; {
     };
 
       services.mysql = {
+        enable = mkDefault true; # From https://github.com/NixOS/nixpkgs/blob/nixos-20.09/nixos/modules/services/misc/gitea.nix
+        package = mkDefault pkgs.mariadb;
+
         ensureDatabases = [ cfg.db.name ];
         ensureUsers = [
           {
