@@ -108,18 +108,14 @@ in with lib; {
 	    export SECRET_KEY_BASE="`cat ${cfg.dir}/key`";
 	'';
       in {
-        emotes-setup = {
-          before = [ "emotes" ];
-          script = ''
-          if [ ! -f ${cfg.dir}/key ]; then
-            echo `${bundle} exec rake secret` > ${cfg.dir}/key
-          fi
-
-          ${envBefore} ${bundle} exec rails db:migrate;
-          '';
-        } // sharedCfg;
-
         emotes = {
+          preStart =''
+              if [ ! -f ${cfg.dir}/key ]; then
+                echo `${bundle} exec rake secret` > ${cfg.dir}/key
+              fi
+
+              ${envBefore} ${bundle} exec rails db:migrate;
+          '';
           script = "${envBefore} ${bundle} exec rails server";
         } // sharedCfg;
       };
