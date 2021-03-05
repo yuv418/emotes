@@ -15,5 +15,10 @@ stdenv.mkDerivation {
     mariadb-client
     krb5Full.dev
   ];
+
+  shellHook = ''
+  alias rails='bundle exec rails'
+  alias rake='bundle exec rake'
+  '';
 }
 
