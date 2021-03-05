@@ -98,6 +98,7 @@ in with lib; {
 	    PIDFILE = "${cfg.dir}/emotes.pid";
             NIXOS="1";
             RAILS_PROD_LOGFILE = "${cfg.dir}/log/production.log";
+            RAILS_TMPDIR = "${cfg.dir}/tmp";
 
           };
           serviceConfig.WorkingDirectory = emotes;
@@ -109,15 +110,12 @@ in with lib; {
         emotes-setup = {
           before = [ "emotes" ];
           script = ''
+          if [ ! -f ${cfg.dir}/key ]; then
+            echo `${bundle} exec rake secret` > ${cfg.dir}/key
+          fi
 
-	  if [ ! -f ${cfg.dir}/key ]; then
-	    echo `${bundle} exec rake secret` > ${cfg.dir}/key
-	  fi
-
-	  ${envBefore}
-	  echo $RAILS_MASTER_KEY;
-	  ${bundle} exec rails db:migrate;
-	  '';
+          ${envBefore} ${bundle} exec rails db:migrate;
+          '';
         } // sharedCfg;
 
         emotes = {

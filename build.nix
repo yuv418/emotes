@@ -36,8 +36,8 @@ in stdenv.mkDerivation {
   src = ./.;
   buildInputs = [gems gems.bundler gems.wrappedRuby];
   installPhase = ''
-      mkdir -p $out
-  mkdir -p $out/tmp/{cache,pids,sockets}
+    mkdir -p $out
+    mkdir -p $out/tmp/{cache,pids,sockets}
     cp -r $src/* $out/
   '';
 }
