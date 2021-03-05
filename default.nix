@@ -13,9 +13,15 @@ in with lib; {
         description = "User to run service as";
       };
       group = mkOption {
-	type = types.str;
-	default = "emotes";
-	description = "Emotes group";
+        type = types.str;
+        default = "emotes";
+        description = "Emotes group";
+      };
+
+      port = mkOption {
+        type = types.int;
+        default = 3004;
+        description = "Emotes port";
       };
 
       dir = mkOption {
@@ -96,7 +102,8 @@ in with lib; {
             EMOTES_DATA = "${cfg.dir}/data";
             RAILS_CACHE = "${cfg.dir}/cache";
             RAILS_ENV = "production";
-	    PIDFILE = "${cfg.dir}/emotes.pid";
+            PIDFILE = "${cfg.dir}/emotes.pid";
+            PORT = builtins.toString cfg.port;
             NIXOS="1";
             RAILS_PROD_LOGFILE = "${cfg.dir}/log/production.log";
             RAILS_TMPDIR = "${cfg.dir}/tmp";

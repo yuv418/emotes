@@ -1,6 +1,6 @@
 = Emotes on Rails
 
-I got tired of the horror show known as Flask and Peewee, so I decided to rewrite the entirety of Emotes in Rails.
+I got tired of the horrid mess known as Emotes with Flask and Peewee, so I decided to rewrite the entirety of Emotes in Rails.
 
 There were a number of issues that I might've been able to avoid with Flask but I didn't.
 
@@ -17,3 +17,36 @@ There were a number of issues that I might've been able to avoid with Flask but 
 So I rewrote Emotes in Ruby on Rails!
 
 You'll find a new `API.adoc` coming out soon, so stay tuned!
+
+== Developing
+
+Since Emotes is deployed to NixOS, I recommend that you develop Emotes on Rails with the `nix` package manager as well. First, you have to install the Nix package manager, which shouldn't be too difficult (follow the instructions on their website).
+
+Then, you can use `nix-shell` to set up your environment. You still have to make sure you have PostgreSQL installed (although this may change soon), with the database `emotes` created with permissions granted on your login user.
+
+To start developing, simply `bundle install` and `rails s` to start the web server.
+
+== Deploying
+
+Currently you can only deploy this on `NixOS` (although I will add a Docker image based on NixOS soon [yes, there is a Dockerfile but don't use that since I haven't tested it and it'll get replaced soon]).
+
+Simply add this to your `configuration.nix` (or wherever you're configuring the emotes server)…
+
+
+[source,nix]
+----
+
+  imports = [
+    (import "${(builtins.fetchTarball "https://github.com/cdknight/emotes/archive/rails.tar.gz")}")
+  ];
+
+  services.emotes.enable = true;
+----
+
+There are more configuration options for Emotes on Rails in the `default.nix` file in this directory, so you can feel free to look through that to see what you can configure at the moment. Right now, deploying Emotes on Rails only supports MySQL, but that will probably change (yes, I know, the development environment uses PostgreSQL and the deployment environment only works with MySQL).
+
+=== Developing Deployments
+
+Deploying Rails applications on NixOS is a bit annoying and complicated, so here's how to "develop" the deployment.
+
+You need to install `nixos-shell` from https://github.com/Mic92/nixos-shell[here] first. Then, you can `nixos-shell` in this directory, and it will spin up a NixOS VM with a sample emotes configuration (see `vm.nix` for specifics). If you want to add something to the service configuration, edit `default.nix` and then test your changes by changing `vm.nix` and doing `nixos-shell`. If you want to look at logs, the `services.emotes` option creates a SystemD service called `emotes.service`, so you can look at the logs with `journalctl` (eg. `journalctl -u emotes`).
