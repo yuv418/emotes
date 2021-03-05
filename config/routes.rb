@@ -1,8 +1,6 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
-  get ':namespace_slug/:emote_slug', to: 'emote_display#show'
-  get ':emote_slug', to: 'emote_display#show'
 
   namespace :api, defaults: { format: :json } do
 
@@ -27,4 +25,7 @@ Rails.application.routes.draw do
       concerns :user_actions
     end
   end
+
+  get ':namespace_slug/:emote_slug', to: 'emote_display#show'
+  get ':emote_slug', to: 'emote_display#show'
 end
