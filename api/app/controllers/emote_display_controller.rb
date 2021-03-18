@@ -12,8 +12,8 @@ class EmoteDisplayController < ApplicationController
     width = params[:width]
     height = params[:height]
 
-    width ||= 64
-    height ||= 64
+    width ||= 48
+    height ||= 48
 
     # Size overrides both
     if params[:size]
