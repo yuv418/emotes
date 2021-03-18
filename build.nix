@@ -4,7 +4,7 @@ let
   gems = bundlerEnv {
     name = "emotes";
     inherit ruby;
-    gemdir  = ./.;
+    gemdir  = ./api;
 
     # Stolen from https://github.com/emptyflask/rails-nix/blob/master/nix/rubyenv.nix
     gemConfig.pg = attrs: {
