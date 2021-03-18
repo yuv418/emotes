@@ -5,40 +5,41 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 # Ignore bundler config.
-/.bundle
+/api/.bundle
 
 # Ignore the default SQLite database.
-/db/*.sqlite3
-/db/*.sqlite3-*
+/api/db/*.sqlite3
+/api/db/*.sqlite3-*
 
 # Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
-!/log/.keep
-!/tmp/.keep
+/api/log/*
+/api/tmp/*
+!/api/log/.keep
+!/api/tmp/.keep
 
 # Ignore pidfiles, but keep the directory.
-/tmp/pids/*
-!/tmp/pids/
-!/tmp/pids/.keep
+/api/tmp/pids/*
+!/api/tmp/pids/
+!/api/tmp/pids/.keep
 
 # Ignore uploaded files in development.
-/storage/*
-!/storage/.keep
+/api/storage/*
+!/api/storage/.keep
 
-/public/assets
-.byebug_history
+api/public/assets
+api/.byebug_history
 
 # Ignore master key for decrypting credentials and more.
-/config/master.key
+api/config/master.key
 
-/public/packs
-/public/packs-test
-/node_modules
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
+api/public/packs
+api/public/packs-test
+api/node_modules
+api/yarn-error.log
+api/yarn-debug.log*
+api/.yarn-integrity
+api/vendor/
+
 .idea
-vendor/
 result
 nixos.qcow2
