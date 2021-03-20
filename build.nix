@@ -38,6 +38,6 @@ in stdenv.mkDerivation {
   installPhase = ''
     mkdir -p $out
     mkdir -p $out/tmp/{cache,pids,sockets}
-    cp -r $src/* $out/
+    cp -r $src/api/* $out/
   '';
 }
