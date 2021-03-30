@@ -153,7 +153,7 @@
   };
   bootsnap = {
     dependencies = ["msgpack"];
-    groups = ["default"];
+    groups = ["development" "test"];
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
@@ -431,7 +431,7 @@
     version = "5.14.4";
   };
   msgpack = {
-    groups = ["default"];
+    groups = ["default" "development" "test"];
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
@@ -472,7 +472,7 @@
     version = "1.11.1";
   };
   pg = {
-    groups = ["default"];
+    groups = ["development"];
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
