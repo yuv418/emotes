@@ -40,6 +40,8 @@ api/yarn-debug.log*
 api/.yarn-integrity
 api/vendor/
 
+ui/target
+
 .idea
 result
 nixos.qcow2

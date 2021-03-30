@@ -1,4 +1,10 @@
 class Api::EmotesController < ApplicationController
+  before_action :authenticate
+
+  def index
+    render json: @current_user.admin ? (Emote.find_by namespace: params[:namespace_slug]) : (@current_user.namespaces.find_by params[:namespace_slug]).emotes
+  end
+
   def create
     nmsp = Namespace.find_by(params[:namespace_slug])
     emote = nmsp.emotes.new create_emote_params
@@ -26,5 +32,4 @@ class Api::EmotesController < ApplicationController
   def create_emote_params
     params.permit(:slug, :name, :image, :emote_type)
   end
-
 end
